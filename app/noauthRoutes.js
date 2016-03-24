@@ -12,7 +12,9 @@ function checkUsers(req,res,User){
   })
 }
 
-module.exports = function(app,User,publicFolder){
+module.exports = function(app,User,publicFolder,passport){
+
+
   app.post('/register', function(req, res) {
 
   	// create a sample user
@@ -28,8 +30,6 @@ module.exports = function(app,User,publicFolder){
         nick.save(function(err) {
           if (err) throw err;
           console.log('User saved successfully');
-          res.json({ success: true,
-           });
         });
       }else{
         res.send({success: false, msg: 'Username already exists.'});

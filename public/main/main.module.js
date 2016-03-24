@@ -29,9 +29,18 @@
           .state('landing', {
               url: '/',
               controller:'MainController',
-              templateUrl: 'main/views/main.html'
+              templateUrl: 'main/views/landing.html'
           })
-
+          .state("main",{
+            url:'/main',
+            controller:'MainController',
+            templateUrl: 'main/views/main.html'
+          })
+          .state("facebook",{
+            url:'/facebook/:token/:currId',
+            controller:'FacebookController',
+            templateUrl: 'main/views/facebook.html'
+          })
 
 
   });

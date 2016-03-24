@@ -6,6 +6,8 @@ var app         = express();
 var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
+var passport = require('passport')
+
 
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
@@ -28,7 +30,8 @@ app.use(bodyParser.json());
 app.use(morgan('dev'));
 
 //routes that do not require tokens
-require('./app/noauthRoutes.js')(app,User,publicFolder)
+require('./app/serialize.js')(User,app,jwt)
+require('./app/noauthRoutes.js')(app,User,publicFolder,passport)
 // ---------------------------------------------------------
 // get an instance of the router for api routes
 // ---------------------------------------------------------

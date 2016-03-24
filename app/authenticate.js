@@ -45,23 +45,7 @@ module.exports = function(apiRoutes,jwt,app){
           });
         }
     });
-  			// if (user) {
-  			// 	res.json({ success: false, message: 'Authentication failed. Wrong password.' });
-  			// } else {
-        //
-  			// 	// if user is found and password is right
-  			// 	// create a token
-  			// 	var token = jwt.sign(user, app.get('superSecret'), {
-  			// 		expiresIn: 86400 // expires in 24 hours
-  			// 	});
-        //
-  			// 	res.json({
-  			// 		success: true,
-  			// 		message: 'Enjoy your token!',
-  			// 		token: token,
-        //     user:user.password
-  			// 	});
-  			// }
+
 
   		}
 

@@ -17,7 +17,30 @@
     var authenticateUser = function(user){
       return $http.post("/api/authenticate",user)
     }
-
+    var getUserInfo = function(user){
+      return $http({
+            url: '/api/getUserInfo/'+localStorage.getItem('currId'),
+            dataType: 'json',
+            method: 'GET',
+            data: '',
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
+    var createEvent = function(object){
+      return $http({
+            url: '/api/createevent/'+localStorage.getItem('currId'),
+            dataType: 'json',
+            method: 'POST',
+            data: object,
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
     var getUsers = function(){
       return $http({
             url: '/api/users',
@@ -45,6 +68,8 @@
           });
           }
     return{
+      getUserInfo:getUserInfo,
+      createEvent:createEvent,
       registerUser:registerUser,
       authenticateUser:authenticateUser,
       getUsers:getUsers,

@@ -16,12 +16,15 @@ var mongoose = require('mongoose'),
     //saving events that user is a part of
 var subEventSchema = new Schema({
     eventId:{type:Schema.Types.ObjectId},
-    admin:{type:Boolean,default:false}
+    admin:{type:Boolean,default:false},
+    eventTitle:{type:String}
 })
   //main user schema
 var UserSchema = new Schema({
     username: { type: String, required: true, index: { unique: true } },
     password: { type: String, required: true },
+    firstName:{type:String,default:''},
+    lastName:{type:String,default:''},
 		email:{type:String,default:''},
     phone:{type:String,default:''},
     events:[subEventSchema]

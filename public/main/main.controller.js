@@ -4,6 +4,15 @@
 angular
   .module('main')
   .controller('MainController',function($interval,MainService,$scope,$state,$timeout){
+    //check if user is logged in, if logged in go to user page
+    if(localStorage.getItem('token')&&localStorage.getItem('currId')){
+      MainService.getUserInfo()
+        .success(function(data){
+          console.log(data,'data')
+        })
+    }
+
+
     $scope.formData = {};
     $scope.userData = {};
     $scope.loginData = {};
@@ -38,6 +47,19 @@ $scope.getUsers = function(){
     console.log(data,'data')
   })
 };
+$scope.newEvent={};
+$scope.createEvent = function(){
+  console.log($scope.eventTitle,'eventTitles')
+  $scope.newEvent.eventTitle = $scope.eventTitle;
+  $scope.newEvent.city = $scope.city;
+  $scope.newEvent.state = $scope.state;
+  $scope.newEvent.zip = $scope.zip;
+  MainService.createEvent($scope.newEvent)
+    .success(function(data){
+      console.log(data,'createEvent')
+    })
+}
+$scope.getUsers();
 $scope.updateUser = function(){
   $scope.updateData.username = $scope.usernameUpdate;
   $scope.updateData.password = $scope.passwordUpdate;
