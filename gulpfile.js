@@ -4,7 +4,7 @@ var mocha = require('gulp-mocha');
 gulp.task('test', function() {
   var error = false;
   gulp.
-    src('./authTest.js').
+    src('./test/test.js').
     pipe(mocha()).
     on('error', function() {
       console.log('Tests failed!');
@@ -20,5 +20,5 @@ gulp.task('test', function() {
 });
 
 gulp.task('watch', ['test'], function() {
-  gulp.watch(['./app/*.js'], ['test']);
+  gulp.watch(['test/**'], ['test']);
 });

@@ -71,12 +71,11 @@ function setupAuth(User, app,jwt) {
           if (!user) {
             res.json({ success: false, message: 'Authentication failed. User not found.' });
           } else {
-            console.log(user,'user')
               var token = jwt.sign(user, app.get('superSecret'), {
                 expiresIn: 86400 // expires in 24 hours
               });
               console.log(token,'token');
-              res.json({success:true,})
+              // res.json({success:true})
               return res.redirect('http://localhost:8080/#/facebook/'+token+'/'+user._id);
             }
         });

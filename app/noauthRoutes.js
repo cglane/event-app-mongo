@@ -27,9 +27,10 @@ module.exports = function(app,User,publicFolder,passport){
     }, function(err, user) {
       if (err) throw err;
       if(!user.length){
-        nick.save(function(err) {
+        nick.save(function(err,body) {
           if (err) throw err;
           console.log('User saved successfully');
+          res.send(body)
         });
       }else{
         res.send({success: false, msg: 'Username already exists.'});

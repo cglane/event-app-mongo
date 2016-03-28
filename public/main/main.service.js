@@ -41,6 +41,18 @@
             }
           });
     }
+    var getEvents = function(){
+      return $http({
+            url: '/api/getevents/'+localStorage.getItem('currId'),
+            dataType: 'json',
+            method: 'GET',
+            data: '',
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
     var getUsers = function(){
       return $http({
             url: '/api/users',
@@ -67,7 +79,9 @@
             }
           });
           }
+
     return{
+      getEvents:getEvents,
       getUserInfo:getUserInfo,
       createEvent:createEvent,
       registerUser:registerUser,

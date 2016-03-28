@@ -1,6 +1,11 @@
 var User = require("./models/user");
 var Events = require('./models/events.js');
-var EventDate = require('./models/eventDates.js')
+var EventDate = require('./models/eventDates.js');
+var _ = require('underscore');
+var waterfall = require('async-waterfall');
+
+// var NodeMail = require('./nodemailer.js');
+// var Twilio = require('./sms.js')
 module.exports = function (apiRoutes) {
 
   apiRoutes.get('/', function(req, res) {
@@ -29,9 +34,10 @@ module.exports = function (apiRoutes) {
         user.username= req.body.username;
         user.password=req.body.password;
         user.token = req.body.token;
+        user.email = req.body.email;
+        user.phone = req.body.phone;
         user.save(function(err,user){
           if(err)throw err;
-          console.log('user saved successfully');
           res.json({
             success:true,
             user:user
@@ -42,7 +48,6 @@ module.exports = function (apiRoutes) {
   });
   apiRoutes.post('/createevent/:user_id',function(req,res){
     var userId = req.params.user_id;
-
     var newEvent = new Events({
       eventTitle: req.body.eventTitle,
       admins:[userId],
@@ -55,7 +60,6 @@ module.exports = function (apiRoutes) {
     //check if name of event already exists for user
       User.findOne({_id:userId},{events:{$elemMatch:{eventTitle:req.body.eventTitle}}},function(err,user){
         if(err)throw err;
-        console.log(user.events.length,'user')
         if(!user.events.length){
           newEvent.save(function(err,eventRes){
             if(err)throw err;
@@ -68,8 +72,7 @@ module.exports = function (apiRoutes) {
                 $push:{events:{eventId:eventRes._id,admin:true,eventTitle:eventRes.eventTitle}}},
                 function(err){
                   if(err) throw err;
-                  res.json({ success: true, message: 'event saved and added to user arrray' });
-                  console.log('event added to user array')
+                  res.send(eventRes)
                 });
             }
           })
@@ -79,32 +82,70 @@ module.exports = function (apiRoutes) {
   });
   apiRoutes.get('/getevents/:userId',function(req,res){
     var userId = req.params.userId;
-    //find all events in user array then grab information about all events
-    User.aggregate([
-      {$match:{_id:userId}},
-      { $unwind : "$events" },
-      {
-        $group:{
-          _id: {"eventId":"$eventId"}
-        }
-      }
-    ],function(err,result){
-      if(err) throw err;
-      console.log(result,'result')
-      res.send(result)
+    var user = User.findOne({'_id':userId});
+    var items = Events.find({'_id':{'$in':user.events}});
+    User.findOne({'_id':userId},function(err,user){
+      if(err)throw err;
+      var eventIds = [];
+      //get all eventIds
+      _.each(user.events,function(el){
+        eventIds.push(el.eventId)
+      })
+      //search Events by EventIds
+      Events.find({_id:{$in:eventIds}},function(err,allEvents){
+        res.send(allEvents)
+      })
     })
+
   });
-  //removes event from user event array
-  apiRoutes.put('/deleteevents/:userId/:eventId',function(req,res){
+  //removes event from user event array and user from event collection
+  apiRoutes.put('/deleteeventsuser/:userId/:eventId',function(req,res){
     var userId = req.params.userId;
     var eventId = req.params.eventId;
+    //double call don't know if in user or admin
+    Events.update({_id:eventId},{$pull:{'admins':userId}});
+    Events.update({_id:eventId},{$pull:{'users':userId}});
+
     User.update({_id:userId},{
-      $pull:{'events':{'eventId':eventId}}
+      $addToSet:{'events':eventId}
     },function(err){
       if(err) throw err;
       res.send({success:true})
     })
   });
+  //add user to Event specify admin or regular userId
+  apiRoutes.put('/addtoevent/:userId/:eventId/:bool',function(req,res){
+    var userId = req.params.userId;
+    var eventId = req.params.eventId;
+    var bool = req.params.bool;
+    if(bool === 'true'){
+      Events.update({_id:eventId},{
+        $addToSet:{'admins':userId}
+      },function(err){
+        if(err)throw err;
+        User.update({_id:userId},{
+          $addToSet:{'events':eventId}
+        },function(err,user){
+          if(err) throw err;
+          res.send({succcess:true})
+        })
+      })
+    }else{
+      Events.update({_id:eventId},{
+        $addToSet:{'users':userId}
+      },function(err){
+        if(err)throw err;
+        User.update({_id:userId},{
+          $addToSet:{'events':eventId}
+        },function(err,user){
+          if(err) throw err;
+          res.send({succcess:true})
+        })
+      })
+    }
+
+  })
+
   //edit event
   apiRoutes.put('/editevent/:eventId',function(req,res){
     var eventId = req.params.eventId;
@@ -155,6 +196,23 @@ module.exports = function (apiRoutes) {
       }
     })
   })
+  apiRoutes.get('/geteventdate/:eventId',function(req,res){
+    var eventId = req.params.eventId;
+    Events.findOne({_id:eventId},function(err,body){
+      if(err)throw err;
+      else{
+        var eventDateIds = [];
+        //get all eventIds
+        _.each(body.eventDates,function(el){
+          eventDateIds.push(el)
+        })
+        //search Events by EventIds
+        EventDate.find({_id:{$in:eventDateIds}},function(err,allEventDates){
+          res.send(allEventDates)
+        })
+      }
+    })
+  })
   apiRoutes.put('/updateeventdate/:eventdateId',function(req,res){
     var eventDateId = req.params.eventdateId;
     var data = req.body;
@@ -169,14 +227,13 @@ module.exports = function (apiRoutes) {
       }}
     },function(err,object){
       if(err)throw err;
-      console.log(object,'object')
       res.send(object);
     })
   })
   apiRoutes.delete('/deleteeventdate/:eventDateId/:eventId',function(req,res){
     var eventDateId = req.params.eventdateId;
     var eventId = req.params.eventId;
-    EventDate.findByIdAndRemove(id,function(err){
+    EventDate.findByIdAndRemove(eventDateId,function(err){
       if(err) throw err;
       else{
         Events.findByIdAndUpdate(eventId,{
@@ -188,6 +245,40 @@ module.exports = function (apiRoutes) {
           res.send(body);
         })
       }
+    })
+  })
+  apiRoutes.post('/sendemail/:eventId',function(req,res){
+    var eventId = req.params.eventId;
+    var emailBody = req.body.emailBody;
+    var subject = req.body.emailSubject;
+    var recipients;
+    //find all attendee id's
+    Events.findOne({_id:eventId},function(err,body){
+      recipients = body.admins.concat(body.users);
+      //search for user emails
+      User.find({_id:{$in:recipients}},function(err,allUsers){
+        if(err)throw err;
+        _.each(allUsers,function(el){
+          require('./nodemailer.js')(el.email,subject,emailBody);
+        })
+      })
+    })
+  })
+  apiRoutes.post('/sendtext/:eventId',function(req,res){
+    var eventId = req.params.eventId;
+    var textBody = req.body.textBody;
+    console.log(textBody,'textBody')
+    var recipients;
+    //find all attendee id's
+    Events.findOne({_id:eventId},function(err,body){
+      recipients = body.admins.concat(body.users);
+      //search for user phone number
+      User.find({_id:{$in:recipients}},function(err,allUsers){
+        if(err)throw err;
+        _.each(allUsers,function(el){
+          require('./sms.js')(el.phone,textBody);
+        })
+      })
     })
   })
 }

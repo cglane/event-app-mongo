@@ -8,7 +8,6 @@ var morgan      = require('morgan');
 var mongoose    = require('mongoose');
 var passport = require('passport')
 
-
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
 var User   = require('./app/models/user'); // get our mongoose model
@@ -31,7 +30,8 @@ app.use(morgan('dev'));
 
 //routes that do not require tokens
 require('./app/serialize.js')(User,app,jwt)
-require('./app/noauthRoutes.js')(app,User,publicFolder,passport)
+require('./app/noauthRoutes.js')(app,User,publicFolder,passport);
+
 // ---------------------------------------------------------
 // get an instance of the router for api routes
 // ---------------------------------------------------------

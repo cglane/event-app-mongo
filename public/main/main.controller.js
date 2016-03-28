@@ -47,6 +47,12 @@ $scope.getUsers = function(){
     console.log(data,'data')
   })
 };
+$scope.getEvents = function(){
+  MainService.getEvents().success(function(data){
+    console.log(data,'events')
+  })
+}
+$scope.getEvents();
 $scope.newEvent={};
 $scope.createEvent = function(){
   console.log($scope.eventTitle,'eventTitles')
@@ -59,6 +65,7 @@ $scope.createEvent = function(){
       console.log(data,'createEvent')
     })
 }
+
 $scope.getUsers();
 $scope.updateUser = function(){
   $scope.updateData.username = $scope.usernameUpdate;
