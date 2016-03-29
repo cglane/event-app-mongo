@@ -3,9 +3,10 @@ var Events = require('./models/events.js');
 var EventDate = require('./models/eventDates.js');
 var _ = require('underscore');
 var waterfall = require('async-waterfall');
-
+var timer = require('./timers.js');
 // var NodeMail = require('./nodemailer.js');
 // var Twilio = require('./sms.js')
+
 module.exports = function (apiRoutes) {
 
   apiRoutes.get('/', function(req, res) {
@@ -158,13 +159,13 @@ module.exports = function (apiRoutes) {
       eventId,
       {update: { $set:
         { 'eventTitle':eventTitle,
-        'eventDate':date,
+        'date':date,
         'location.$.city':city,
         'location.$.state':state,
         'location.$.zip':zip
       }
     }
-    },function(err){
+  },function(err,thisEvent){
       if(err)throw err;
       res.send({success:true,eventTitle:req.body.eventTitle})
     })
@@ -174,7 +175,8 @@ module.exports = function (apiRoutes) {
     var data = req.body;
     var localDoc = new EventDate({
       title: data.title,
-      date: data.date,
+      startDate: data.startDate,
+      endDate:data.endDate,
       textMsg:{
         bool:data.textMsg.bool,
         time:data.textMsg.time,
@@ -187,6 +189,7 @@ module.exports = function (apiRoutes) {
     localDoc.save(function(err,object){
       if(err)throw err;
       else{
+        timer.setSchedule(object,eventId);
         Events.findByIdAndUpdate(eventId,{
           $push:{eventDates:object._id},
         },function(err){
@@ -213,21 +216,30 @@ module.exports = function (apiRoutes) {
       }
     })
   })
-  apiRoutes.put('/updateeventdate/:eventdateId',function(req,res){
+  apiRoutes.put('/updateeventdate/:eventdateId/:eventId',function(req,res){
     var eventDateId = req.params.eventdateId;
-    var data = req.body;
-    EventDate.findByIdAndUpdate(eventDateId,{
-      update:{$set:{
-        'title':data.title,
-        'date':data.date,
-        'textMsg.$.bool':data.textMsg.bool,
-        'textMsg.$.time':data.textMsg.time,
-        'email.$.bool':data.email.bool,
-        'email.$.time':data.email.time
-      }}
-    },function(err,object){
-      if(err)throw err;
-      res.send(object);
+    var eventId = req.params.eventId;
+    var updatedObj = {
+      'title':req.body.title,
+      'startDate':req.body.startDate,
+      'endDate':req.body.endDate,
+      'textMsg':{
+        'bool':req.body.textMsg.bool,
+        'time':req.body.textMsg.time
+      },
+      'email':{
+        'bool':req.body.email.bool,
+        'time':req.body.email.time
+      }
+    }
+    EventDate.findByIdAndUpdate(
+        eventDateId,
+        updatedObj,
+        {new: true},
+      function(err,object){
+        if(err)throw err;
+        timer.setSchedule(object,eventId)
+        res.send(object);
     })
   })
   apiRoutes.delete('/deleteeventdate/:eventDateId/:eventId',function(req,res){
