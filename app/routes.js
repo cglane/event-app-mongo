@@ -138,8 +138,8 @@ module.exports = function (apiRoutes) {
         if(err)throw err;
         User.update({_id:userId},{
           $addToSet:{'events':eventId}
-        },function(err,user){
-          if(err) throw err;
+        },function(error,user){
+          if(error) throw error;
           res.send({succcess:true})
         })
       })

@@ -9,6 +9,7 @@
     "express-session": "^1.13.0",
     "http-status": "0.1.8",
     "jsonwebtoken": "^5.7.0",
+    "method-override": "^2.3.5",
     "mongoose": "^4.4.5",
     "morgan": "^1.7.0",
     "node-schedule": "^1.1.0",
@@ -21,11 +22,15 @@
     "wagner-core": "0.1.0"
   },
   "devDependencies": {
+    "angular": "^1.5.3",
     "angular-mocks": "^1.5.3",
     "chai": "^3.5.0",
     "gulp": "^3.9.1",
     "gulp-mocha": "^2.2.0",
+    "jasmine-core": "^2.4.1",
     "karma": "^0.13.22",
+    "karma-chrome-launcher": "^0.2.3",
+    "karma-jasmine": "^0.3.8",
     "mocha": "^2.4.5",
     "request": "^2.69.0",
     "should": "^8.2.2",
@@ -34,6 +39,8 @@
   },
   "scripts": {
     "test": "mocha authTest.js",
-    "watch": "gulp watch"
+    "watch": "gulp watch",
+    "angular": "karma start ./test/karma.conf.js --auto-watch",
+    "ionic": "karma start ./test/karma.confIonic.js --auto-watch"
   }
 }

@@ -3,6 +3,7 @@
 // =================================================================
 var express 	= require('express');
 var app         = express();
+var methodOverride = require('method-override');
 var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
@@ -16,7 +17,7 @@ var publicFolder = __dirname + '/public';
 // =================================================================
 // configuration ===================================================
 // =================================================================
-var port = process.env.PORT || 8080; // used to create, sign, and verify tokens
+var port = process.env.PORT || 3000; // used to create, sign, and verify tokens
 mongoose.connect(config.database); // connect to database
 app.set('superSecret', config.secret); // secret variable
 app.use(express.static(__dirname + '/public')); 		// set the static files location /public/img will be /img for users
@@ -27,7 +28,37 @@ app.use(bodyParser.json());
 
 // use morgan to log requests to the console
 app.use(morgan('dev'));
+//config response for server
 
+//all CORS,neccesary for ionic app
+// app.use(function(req, res, next) {
+//   res.append('Access-Control-Allow-Origin',req.headers.origin || '*');
+//   res.append('Access-Control-Allow-Credentials','true');
+//   res.append('Access-Control-Allow-Methods',['GET', 'OPTIONS','PUT','POST']);
+//   res.append('Access-Control-Allow-Headers',
+//       'Origin, X-Requested-With, Content-Type, Accept');
+//   next();
+// });
+
+app.use(methodOverride());
+
+// ## CORS middleware
+//
+// see: http://stackoverflow.com/questions/7067966/how-to-allow-cors-in-express-nodejs
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    // intercept OPTIONS method
+    if ('OPTIONS' == req.method) {
+      res.sendStatus(200);
+    }
+    else {
+      next();
+    }
+};
+app.use(allowCrossDomain);
 //routes that do not require tokens
 require('./app/serialize.js')(User,app,jwt)
 require('./app/noauthRoutes.js')(app,User,publicFolder,passport);

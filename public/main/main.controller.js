@@ -12,12 +12,15 @@ angular
         })
     }
 
-
     $scope.formData = {};
     $scope.userData = {};
     $scope.loginData = {};
     $scope.updateData = {};
     $scope.loading = true;
+
+    $scope.testFun = function(){
+      $scope.two = $scope.one + 2;
+    }
 //Register User----------s-------------s
 $scope.registerUser = function(){
   $scope.userData.username = $scope.username;
@@ -28,6 +31,7 @@ $scope.registerUser = function(){
     localStorage.setItem('token', data.token);
     localStorage.setItem("currId",data._id)
     console.log(data,'data')
+    return true;
   })
 }
 //Authenticate User

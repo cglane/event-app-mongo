@@ -12,6 +12,6 @@ angular
         localStorage.setItem('currId',currId)
       }
       setItem();
-      $location.path('/main')
+      // $location.path('/tab/dash')
 });
 })();
