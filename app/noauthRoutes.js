@@ -12,7 +12,7 @@ function checkUsers(req,res,User){
   })
 }
 
-module.exports = function(app,User,publicFolder,passport){
+module.exports = function(app,User,publicFolder,passport,jwt){
 
 
   app.post('/register', function(req, res) {
@@ -30,7 +30,10 @@ module.exports = function(app,User,publicFolder,passport){
         nick.save(function(err,body) {
           if (err) throw err;
           console.log('User saved successfully');
-          res.send(body)
+          var token = jwt.sign(body, app.get('superSecret'), {
+            expiresIn: 86400 // expires in 24 hours
+          });
+          res.send({body:body,token:token})
         });
       }else{
         res.send({success: false, msg: 'Username already exists.'});

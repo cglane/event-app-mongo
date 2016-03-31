@@ -5,12 +5,7 @@
     .factory('MainService',function($http){
       var token;
       var currId;
-      if(localStorage.getItem('token')){
-         token = localStorage.getItem('token');
-         currId = localStorage.getItem("currId");
-         console.log(token,'token');
-         console.log(currId,'currId')
-      }
+
     var registerUser = function(user){
       return $http.post('/register',user)
     }
@@ -82,6 +77,8 @@
             }
           });
           }
+
+
 
     return{
       facebookAuth:facebookAuth,

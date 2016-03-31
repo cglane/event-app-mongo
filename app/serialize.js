@@ -4,6 +4,7 @@ function setupAuth(User, app,jwt) {
   var FacebookStrategy = require('passport-facebook').Strategy;
   var Config = require('../config.js')
   var globalUser;
+  var token;
   // High level serialize/de-serialize configuration for passport
   passport.serializeUser(function(user, done) {
     done(null, user._id);
@@ -74,8 +75,11 @@ function setupAuth(User, app,jwt) {
         //find if user already added if not authenticate and add to users database
         User.findOne({username:user.email},function(err,userDat){
           console.log(userDat,'userDat')
-          if(!userDat){
-            res.json({success:'user alreay exists'})
+          if(userDat){
+            globalUser = userDat;
+            token = jwt.sign(userDat, app.get('superSecret'), {
+              expiresIn: 86400 // expires in 24 hours
+            });
           }else{
             var nick = new User({
               username:user.email,
@@ -84,6 +88,11 @@ function setupAuth(User, app,jwt) {
             nick.save(function(err,body) {
               if (err) throw err;
               console.log('User saved successfully');
+              //authenticating user
+              token = jwt.sign(body, app.get('superSecret'), {
+                expiresIn: 86400 // expires in 24 hours
+              });
+              //returning user object
               globalUser = body;
             });
           }
@@ -95,9 +104,9 @@ function setupAuth(User, app,jwt) {
       res.redirect(req.query.redirect);
     });
 
-    app.get('/api/v1/me',function(req,res){
-      console.log('greate success')
-      res.send(globalUser)
+    app.get('/facebook/me',function(req,res){
+      console.log('greate success');
+      res.send({global:globalUser,token:token})
     })
   // Express routes for auth
   // app.get('/auth/facebook',

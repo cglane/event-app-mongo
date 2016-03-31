@@ -2,10 +2,11 @@ describe('Controllers', function(){
     var scope;
 
     // load the controller's module
-    beforeEach(module('starter.controllers'));
+    beforeEach(module('starter.controllers','starter.services'));
 
     var scope,
-       controller;
+       controller,
+       MainService;
     beforeEach(inject(function($rootScope, $controller, _MainService_) {
     scope = $rootScope.$new();
     MainService = _MainService_;
@@ -21,14 +22,13 @@ describe('Controllers', function(){
 
     // tests start here
     it('should enable facebook login', function(){
+      var actual = scope.facebookLogin();
+      console.log(actual,'actual')
+      expect(actual).not.toBeFalsy();
       //   var fakePromise = $q.when();
       //  spyOn(MainService, 'facebookAuth')and.returnValue(fakePromise);
-       MainService.registerUser = jasmine.createSpy("registerUser() spy").andCallFake(function() {
-         console.log("Hello from getName()");
-         return "Bobby";
-       });
-        // scope.say();
-        // expect(scope.hello).toEqual('charles');
+      //   scope.say();
+      //   expect(scope.hello).toEqual('charles');
     });
     // it('should have enabled friends to be true', function(){
     //     var fakePromise = $q.when();
