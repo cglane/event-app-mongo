@@ -1,1 +1,21 @@
-/* Empty. Add your own CSS if you like */
+.turnRed {
+  background-color: red !important;
+  transition: 1s;
+  color: red;
+  font-size: 23px; }
+
+#or-tag {
+  font-size: 30px;
+  padding: 40px;
+  height: 47px;
+  width: 50px;
+  vertical-align: center;
+  margin-top: 10px; }
+
+#create-new-event {
+  color: red;
+  text-decoration: underline;
+  font-size: 1.5em; }
+
+.nav-buttons-icons {
+  padding-left: 5px; }

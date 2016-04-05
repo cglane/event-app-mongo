@@ -6,8 +6,8 @@ var d = new Date();
 var future = new Date(d.getTime() + 10000)
 var EventDateSchema = new Schema({
     title: { type: String, required: true},
-    startDate: { type: Date, default:Date.now() },
-    endDate:{type:Date,default: future},
+    start: { type: Date, default:Date.now() },
+    end:{type:Date,default: future},
 		textMsg:{
       bool:{type:Boolean,default:true},
       time:{type:Number,default:1800000}

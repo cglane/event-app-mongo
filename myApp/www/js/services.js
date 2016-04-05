@@ -2,10 +2,11 @@
   "use strict"
   angular
     .module('starter.services',[])
-    .factory('MainService',function($http){
-      var token;
-      var currId;
-
+    .factory('MainService',function($http,$scope){
+    var token;
+    if(localStorage.getItem('token')){
+      token = localStorage.getItem("token")
+    }
     var registerUser = function(user){
       return $http.post('/register',user)
     }
@@ -51,6 +52,42 @@
             }
           });
     }
+    var getEventDates = function(){
+      return $http({
+            url: '/api/geteventdate/'+localStorage.getItem('eventId'),
+            dataType: 'json',
+            method: 'GET',
+            data: '',
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
+    var createEventDate = function(object){
+      return $http({
+            url: '/api/createeventdate/'+localStorage.getItem('eventId'),
+            dataType: 'json',
+            method: 'POST',
+            data: object,
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
+    var editEventDate = function(object,id){
+      return $http({
+            url: '/api/updateeventdate/'+id+'/'+localStorage.getItem('eventId'),
+            dataType: 'json',
+            method: 'PUT',
+            data: object,
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
     var getUsers = function(){
       return $http({
             url: '/api/users',
@@ -81,6 +118,9 @@
 
 
     return{
+      editEventDate:editEventDate,
+      createEventDate:createEventDate,
+      getEventDates:getEventDates,
       facebookAuth:facebookAuth,
       getEvents:getEvents,
       getUserInfo:getUserInfo,
@@ -91,4 +131,5 @@
       updateUser:updateUser
     };
   });
+
 })();

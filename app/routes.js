@@ -173,10 +173,11 @@ module.exports = function (apiRoutes) {
   apiRoutes.post('/createeventdate/:eventId',function(req,res){
     var eventId = req.params.eventId;
     var data = req.body;
+    console.log(data,'dat from create event date')
     var localDoc = new EventDate({
       title: data.title,
-      startDate: data.startDate,
-      endDate:data.endDate,
+      start: data.start,
+      end:data.end,
       textMsg:{
         bool:data.textMsg.bool,
         time:data.textMsg.time,
@@ -221,8 +222,8 @@ module.exports = function (apiRoutes) {
     var eventId = req.params.eventId;
     var updatedObj = {
       'title':req.body.title,
-      'startDate':req.body.startDate,
-      'endDate':req.body.endDate,
+      'start':req.body.start,
+      'end':req.body.end,
       'textMsg':{
         'bool':req.body.textMsg.bool,
         'time':req.body.textMsg.time

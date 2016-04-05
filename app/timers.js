@@ -16,7 +16,7 @@ module.exports = {
       global[eventDateObject._id + 'email'].cancel()
     }
     //set new schedule objects
-  var startDate = eventDateObject.startDate;
+  var startDate = eventDateObject.start;
   var textDate = new Date(startDate.getTime() + eventDateObject.textMsg.time);
   var emailDate = new Date(startDate.getTime() + eventDateObject.email.time);
   //if bool is true send email or textMsg

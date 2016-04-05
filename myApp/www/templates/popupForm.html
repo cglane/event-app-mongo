@@ -1,0 +1,26 @@
+<div ng-controller = "CalendarCtrl"class="list">
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Title</span>
+    <input ng-model = "data.title"type="text" placeholder="group meeting">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Start Date</span>
+    <button ng-click = "openDatePicker()"type="button" name="button">Pick Date</button>
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Send Email Reminder</span>
+    <select ng-model = 'data.email.bool'>
+      <option value="true">True</option>
+      <option value="false">False</option>
+    </select>
+   </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Send Text Reminder</span>
+    <select ng-model = 'data.textMsg.bool'>
+      <option value="true">True</option>
+      <option value="false">False</option>
+    </select>
+    </label>
+    <span>{{eventDateTitle}}</span>
+
+</div>

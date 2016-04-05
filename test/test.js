@@ -9,10 +9,10 @@ var config = require('../config');
   var url = 'http://localhost:8080'
       before(function(done){
         mongoose.connect(config.database);
-        user = {username:'hugh',password:'lane',password:'hugh',email:'charleslane23@gmail.com',phone:'+18436479951'};
+        user = {username:'node',password:'node',email:'charleslane23@gmail.com',phone:'+18436479951'};
         bool = true
-        localEvent = {eventTitle:'Second Eve123456',city:'charleston',state:'sc',zip:'29401'}
-        localEventDate = {title:'it is raining',startDate:Date.now(),textMsg:{bool:true,time:1000},email:{bool:true,time:1000}};
+        localEvent = {eventTitle:'Test for Calendar',city:'charleston',state:'sc',zip:'29401'}
+        localEventDate = {title:'it is raining',start:Date.now(),textMsg:{bool:true,time:1000},email:{bool:true,time:1000}};
         emailBody = {emailBody:'this is an email',emailSubject:'this is an email subject'};
         textBody = {textBody:'this is a textBody'}
           done();

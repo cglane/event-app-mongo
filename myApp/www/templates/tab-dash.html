@@ -1,17 +1,25 @@
-<ion-view view-title="Dashboard">
-  <ion-content class="padding">
-    <div class="list list-inset">
-         <label class="item item-input">
-             <input type="text" placeholder="Username" ng-model="userData.username">
-         </label>
-         <label class="item item-input">
-             <input type="password" placeholder="Password" ng-model="userData.password">
-         </label>
-     </div>
-     <button class="button button-block button-calm" ng-click="regularLogin()">Login</button>
-     <button class="button button-block button-calm" ng-click="facebookLogin()">Facebook</button>
- </ion-content>
-</ion-view>
+<ion-view view-title="Dash">
+  <ion-content>
+    <ion-list>
+      <ion-item class="item-remove-animate item-avatar item-icon-right text-center" type="item-text-wrap" href="#/events/dash/{{event._id}}">
+        <h2 id = "create-new-event">Create New Event</h2>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+        <ion-option-button class="button-assertive" ng-click="remove(chat)">
+          Delete
+        </ion-option-button>
+      </ion-item>
+      <ion-item ng-click = "setEventId(event._id)"class="item-remove-animate item-avatar item-icon-right text-center" ng-repeat="event in userEvents" type="item-text-wrap" href="#/events/dash/{{event._id}}">
+        <h2>{{event.eventTitle}}</h2>
+        <p>
+          {{event.date}}
+        </p>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+        <ion-option-button class="button-assertive" ng-click="remove(chat)">
+          Delete
+        </ion-option-button>
+      </ion-item>
+
+    </ion-list>
 
   </ion-content>
 </ion-view>

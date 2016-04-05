@@ -1,0 +1,48 @@
+<div ng-controller = "CalendarCtrl"class="list">
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Title</span>
+    <input ng-model = "editData.title"type="text" placeholder="group meeting">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Start Date</span>
+    <input ng-click = ""ng-model = "editData.start"type="date" placeholder="dates"name="name" value="">
+    <!-- <button ng-click = "openDatePicker()"type="button" name="button">Pick Date</button> -->
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Start Time</span>
+    <input ng-model = 'editData.startTime'type="time" name="name" placeholder = 'time'value="">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">End Time</span>
+    <input ng-model = "editData.endTime"type="time" name="name" placeholder = 'time'value="">
+  </label>
+  <span class="input-label">Email</span>
+
+  <label class="item item-input item-stacked-label">
+    <select ng-model = 'editData.email.bool'>
+      <option value="true">True</option>
+      <option value="false">False</option>
+    </select>
+   </label>
+   <label class="item item-input item-stacked-label">
+     <select ng-model = 'editData.email.time'>
+       <option value="7200000">2 Hours</option>
+       <option value="86400000">24 Hours</option>
+       <option value="172800000">48 Hours</option>
+     </select>
+    </label>
+    <span class="input-label">Text</span>
+  <label class="item item-input item-stacked-label">
+    <select ng-model = 'editData.textMsg.bool'>
+      <option value="true">True</option>
+      <option value="false">False</option>
+    </select>
+    </label>
+    <label class="item item-input item-stacked-label">
+      <select ng-model = 'editData.textMsg.time'>
+        <option value="1800000">30 Minutes</option>
+        <option value="3600000">1 Hours</option>
+        <option value="7200000">2 Hours</option>
+      </select>
+      </label>
+</div>
