@@ -5,22 +5,45 @@
   </label>
   <label class="item item-input item-stacked-label">
     <span class="input-label">Start Date</span>
-    <button ng-click = "openDatePicker()"type="button" name="button">Pick Date</button>
+    <input ng-click = ""ng-model = "data.start"type="date" placeholder="dates"name="name" value="">
+    <!-- <button ng-click = "openDatePicker()"type="button" name="button">Pick Date</button> -->
   </label>
   <label class="item item-input item-stacked-label">
-    <span class="input-label">Send Email Reminder</span>
+    <span class="input-label">Start Time</span>
+    <input type="time" id="startime-input" name="input" ng-model="data.startTime"
+       placeholder="HH:mm:ss" min="00:00:00" max="24:00:00" required />
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">End Time</span>
+    <input type="time" id="endtime-input" name="input" ng-model="data.endTime"
+       placeholder="HH:mm:ss" min="00:00:00" max="24:00:00" required />  </label>
+  <span class="input-label">Email</span>
+
+  <label class="item item-input item-stacked-label">
     <select ng-model = 'data.email.bool'>
       <option value="true">True</option>
       <option value="false">False</option>
     </select>
    </label>
+   <label class="item item-input item-stacked-label">
+     <select ng-model = 'data.email.time'>
+       <option value="7200000">2 Hours</option>
+       <option value="86400000">24 Hours</option>
+       <option value="172800000">48 Hours</option>
+     </select>
+    </label>
+    <span class="input-label">Text</span>
   <label class="item item-input item-stacked-label">
-    <span class="input-label">Send Text Reminder</span>
     <select ng-model = 'data.textMsg.bool'>
       <option value="true">True</option>
       <option value="false">False</option>
     </select>
     </label>
-    <span>{{eventDateTitle}}</span>
-
+    <label class="item item-input item-stacked-label">
+      <select ng-model = 'data.textMsg.time'>
+        <option value="1800000">30 Minutes</option>
+        <option value="3600000">1 Hours</option>
+        <option value="7200000">2 Hours</option>
+      </select>
+      </label>
 </div>

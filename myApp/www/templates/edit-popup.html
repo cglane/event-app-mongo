@@ -10,12 +10,13 @@
   </label>
   <label class="item item-input item-stacked-label">
     <span class="input-label">Start Time</span>
-    <input ng-model = 'editData.startTime'type="time" name="name" placeholder = 'time'value="">
+    <input type="time" id="startime-input" name="input" ng-model="editData.startTime"
+       placeholder="HH:mm:ss" min="00:00:00" max="24:00:00" required />
   </label>
   <label class="item item-input item-stacked-label">
     <span class="input-label">End Time</span>
-    <input ng-model = "editData.endTime"type="time" name="name" placeholder = 'time'value="">
-  </label>
+    <input type="time" id="endtime-input" name="input" ng-model="editData.endTime"
+       placeholder="HH:mm:ss" min="00:00:00" max="24:00:00" required />  </label>
   <span class="input-label">Email</span>
 
   <label class="item item-input item-stacked-label">

@@ -3,61 +3,74 @@
 
 angular
   .module('starter')
-  .controller('CalendarCtrl', function($scope, ionicDatePicker,$ionicPopup,$compile,$stateParams,MainService) {
+  .controller('CalendarCtrl', function($scope, ionicDatePicker,$ionicPopup,$compile,$stateParams,MainService,uiCalendarConfig) {
 
-    console.log($scope.hello)
-    var createNewEvent = function(data){
+    var createEventDate = function(data){
       MainService.createEventDate(data).success(function(data){
         refreshEvents();
         console.log(data,'data')
       })
     }
+
     var getEventDates = function(){
     MainService.getEventDates().success(function(eventDates){
       console.log(eventDates)
       eventDates.forEach(function(el){
         if(el.start){
+          el.start = new Date(el.start)
+          el.end = new Date(el.end)
           $scope.events.push(el)
         }
       })
     })
   }
+  getEventDates()
     var refreshEvents = function(){
       MainService.getEventDates().success(function(eventDates){
         console.log(eventDates)
+        var newEvents = [];
         $scope.events.splice(0,$scope.events.length);
         eventDates.forEach(function(el){
           if(el.start){
+            el.start = new Date(el.start);
+            el.end = new Date(el.end)
             $scope.events.push(el)
           }
-          //check if digest is finished then refresh page
-          setTimeout(function () {
-            $scope.$apply(function(){
-              $scope.events = $scope.events;
-            })
-          }, 10);
         })
+        //update events and update calendar,ughhh
+        setTimeout(function () {
+          $scope.$apply(function(){
+            $scope.eventSources = [$scope.events];
+          })
+          $('#my-calendar').fullCalendar('removeEvents')
+          $('#my-calendar').fullCalendar('addEventSource',$scope.events)
+        }, 10);
       })
     }
   var addDaysHours = function(day,hour){
       var splitDay = moment(day).startOf('day');
-      var splitHour = moment(hour).valueOf();
-      var newTimeUnix = splitDay._d.valueOf()+ splitHour;
-      return new Date(newTimeUnix);
+      var splitHour = hour.getHours();
+      var splitMinutes = hour.getMinutes();
+      var addedHours = splitDay.add(splitHour, 'hours');
+      var addedMinutes = addedHours.add(splitMinutes,'minutes')
+      return addedMinutes;
   }
   var endLaterThanStart = function(start,end){
-
-    if(moment(start).valueOf() < moment(end).valueOf()){
-      return true;
+    if(start && end){
+        if(moment(start).valueOf() < moment(end).valueOf()){
+          return true;
+        }else{
+          return false
+        }
     }else{
-      return false
+      return false;
     }
   }
   var editEventDate = function(object,id){
+    console.log(object.textMsg.bool,'object')
     MainService.editEventDate(object,id).success(function(el){
-      console.log(el,'el');
+      console.log(el.textMsg.bool,'element')
       refreshEvents();
-
     })
   }
     // The datepicker is used in the popups and sets the return value to the
@@ -99,8 +112,7 @@ $scope.formPopup = function() {
   // An elaborate, custom popup
   var myPopup = $ionicPopup.show({
     templateUrl: 'templates/popupForm.html',
-    title: 'Enter Wi-Fi Password',
-    subTitle: 'Please use normal things',
+    title: 'Create New Events',
     scope: $scope,
     buttons: [
       { text: 'Cancel' },
@@ -108,13 +120,24 @@ $scope.formPopup = function() {
         text: '<b>Save</b>',
         type: 'button-positive',
         onTap: function(e) {
-          console.log($scope.data,'datas')
-          //check if empty inputs
-          if($scope.data.title && $scope.data.email.bool && $scope.data.textMsg.bool && $scope.data.start){
-            createNewEvent($scope.data);
+          if($scope.data.startTime && $scope.data.endTime && (endLaterThanStart($scope.data.startTime,$scope.data.endTime))&& $scope.data.title){
+            var dataObject = {
+              title:$scope.data.title,
+              start:addDaysHours($scope.data.start,$scope.data.startTime),
+              end:addDaysHours($scope.data.start,$scope.data.endTime),
+              email:{
+                bool:$scope.data.email.bool,
+                time:$scope.data.email.time,
+              },
+              textMsg:{
+                bool:$scope.data.textMsg.bool,
+                time:$scope.data.textMsg.time
+              }
+            };
+            createEventDate(dataObject);
           }else{
             e.preventDefault();
-            alert('You need to fill in all fields')
+            alert('Almost There')
           }
         }
       }
@@ -122,17 +145,19 @@ $scope.formPopup = function() {
   });
  };
  $scope.editEventPopup = function(data) {
+   console.log(data.email.bool,'email.bool')
+   console.log((data.email.bool === 'true')? true : false, 'turnary operator')
    $scope.editData = {
      title:data.title,
      start:data.start._d,
      end:data.end._d,
      email:{
        bool:data.email.bool,
-       time:data.email.time,
+       time:parseInt(data.email.time),
      },
      textMsg:{
        bool:data.textMsg.bool,
-       time:data.textMsg.time
+       time:parseInt(data.textMsg.time)
      }
    };
 
@@ -148,30 +173,25 @@ $scope.formPopup = function() {
          text: '<b>Save</b>',
          type: 'button-positive',
          onTap: function(e) {
-           var editDataObject = {
-             title:$scope.editData.title,
-             start:addDaysHours($scope.editData.start,$scope.editData.startTime),
-             end:addDaysHours($scope.editData.start,$scope.editData.endTime),
-             email:{
-               bool:$scope.editData.email.bool,
-               time:$scope.editData.email.time,
-             },
-             textMsg:{
-               bool:$scope.editData.textMsg.bool,
-               time:$scope.editData.textMsg.time
-             }
-           };
-           console.log(editDataObject,$scope.editData)
-           if((endLaterThanStart(editDataObject.start,editDataObject.end))&& editDataObject.title){
+           if($scope.editData.startTime && $scope.editData.endTime && (endLaterThanStart($scope.editData.start,$scope.editData.end))&& $scope.editData.title){
+             var editDataObject = {
+               title:$scope.editData.title,
+               start:addDaysHours($scope.editData.start,$scope.editData.startTime),
+               end:addDaysHours($scope.editData.start,$scope.editData.endTime),
+               email:{
+                 bool:$scope.editData.email.bool,
+                 time:$scope.editData.email.time,
+               },
+               textMsg:{
+                 bool:$scope.editData.textMsg.bool,
+                 time:$scope.editData.textMsg.time
+               }
+             };
              editEventDate(editDataObject,data._id);
            }else{
              e.preventDefault();
-             console.log('not ready')
+             alert('Almost There')
            }
-           console.log(editDataObject,'hello')
-           //check if empty inputs
-            //  e.preventDefault();
-            //  alert('You need to fill in all fields')
          }
        }
      ]
@@ -188,14 +208,14 @@ $scope.formPopup = function() {
   /* event source that pulls from google.com */
   $scope.eventSource = {
           className: 'gcal-event',           // an option!
-          currentTimezone: 'America/New York' // an option!
+          // currentTimezone: 'America/New York' // an option!
   };
   /* event source that contains custom events on the scope */
   $scope.events = [
     {title:'hello',start:new Date()}
 
   ];
-  getEventDates();
+
 
   /* event source that calls a function on every view switch */
   $scope.eventsF = function (start, end, timezone, callback) {
@@ -222,7 +242,21 @@ $scope.formPopup = function() {
   };
   /* alert on Drop */
    $scope.alertOnDrop = function(event, delta, revertFunc, jsEvent, ui, view){
-     $scope.alertMessage = ('Event Droped to make dayDelta ' + delta);
+     console.log(event,'event')
+     var currObject = {
+       title:event.title,
+       start:event.start._d,
+       end:event.end._d,
+       email:{
+         bool:event.email.bool,
+         time:event.email.time
+       },
+       textMsg:{
+         bool:event.textMsg.bool,
+         time:event.textMsg.time
+       }
+     }
+     editEventDate(currObject,event._id);
   };
   /* alert on Resize */
   $scope.alertOnResize = function(event, delta, revertFunc, jsEvent, ui, view ){
@@ -273,7 +307,7 @@ $scope.formPopup = function() {
   /* config object */
   $scope.uiConfig = {
     calendar:{
-      height: 450,
+      height: 600,
       editable: true,
       header:{
         left: 'title',
@@ -299,49 +333,8 @@ $scope.formPopup = function() {
     }
   };
   /* event sources array*/
-  $scope.eventSources = [$scope.events, $scope.eventSource, $scope.eventsF];
-  $scope.eventSources2 = [$scope.calEventsExt, $scope.eventsF, $scope.events];
+  $scope.eventSources = [$scope.events];
+  // $scope.eventSources2 = [$scope.calEventsExt, $scope.eventsF, $scope.events];
 
-  //   var myDate = new Date();
-  //   var momentDate = moment(myDate)
-  //   $("#myCalendar-1").ionCalendar({
-  //       lang: "en",                     // language
-  //       sundayFirst: false,             // first week day
-  //       years: "80",                    // years diapason
-  //       format: "",           // date format
-  //       onClick: function(dates){        // click on day returns date
-  //         $("#result-2").html("onClick: " + moment(dates) + 'mydata'+ momentDate);
-  //         var newDate = moment(dates)
-  //         if(momentDate.startOf('day').isSame(newDate.startOf('day'))){
-  //           console.log('got it')
-  //         }
-  //       }
-  //   });
-  //
-  //   var ipObj1 = {
-  //     callback: function (val) {  //Mandatory
-  //       console.log('Return value from the datepicker popup is : ' + val, new Date(val));
-  //     },
-  //     disabledDates: [            //Optional
-  //       new Date(2016, 2, 16),
-  //       new Date(2015, 3, 16),
-  //       new Date(2015, 4, 16),
-  //       new Date(2015, 5, 16),
-  //       new Date('Wednesday, August 12, 2015'),
-  //       new Date("08-16-2016"),
-  //       new Date(1439676000000)
-  //     ],
-  //     from: new Date(2012, 1, 1), //Optional
-  //     to: new Date(2017, 10, 30), //Optional
-  //     inputDate: new Date(),      //Optional
-  //     mondayFirst: true,          //Optional
-  //     disableWeekdays: [0],       //Optional
-  //     closeOnSelect: false,       //Optional
-  //     templateType: 'popup'       //Optional
-  //   };
-  //
-  //   $scope.openDatePicker = function(){
-  //     ionicDatePicker.openDatePicker(ipObj1);
-  //   };
   })
 })();

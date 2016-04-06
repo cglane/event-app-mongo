@@ -2,7 +2,7 @@
   "use strict"
   angular
     .module('starter.services',[])
-    .factory('MainService',function($http,$scope){
+    .factory('MainService',function($http){
     var token;
     if(localStorage.getItem('token')){
       token = localStorage.getItem("token")

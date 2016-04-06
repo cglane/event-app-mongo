@@ -220,19 +220,22 @@ module.exports = function (apiRoutes) {
   apiRoutes.put('/updateeventdate/:eventdateId/:eventId',function(req,res){
     var eventDateId = req.params.eventdateId;
     var eventId = req.params.eventId;
+    var textBool = (req.body.textMsg.bool === 'true')? true:false;
+    var emailBool = (req.body.email.bool === 'true')? true:false;
     var updatedObj = {
       'title':req.body.title,
       'start':req.body.start,
       'end':req.body.end,
       'textMsg':{
-        'bool':req.body.textMsg.bool,
+        'bool':textBool,
         'time':req.body.textMsg.time
       },
       'email':{
-        'bool':req.body.email.bool,
+        'bool':emailBool,
         'time':req.body.email.time
       }
     }
+    console.log(updatedObj,'updatedObj')
     EventDate.findByIdAndUpdate(
         eventDateId,
         updatedObj,
@@ -240,7 +243,7 @@ module.exports = function (apiRoutes) {
       function(err,object){
         if(err)throw err;
         timer.setSchedule(object,eventId)
-        res.send(object);
+        res.send(object)
     })
   })
   apiRoutes.delete('/deleteeventdate/:eventDateId/:eventId',function(req,res){

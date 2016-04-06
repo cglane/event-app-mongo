@@ -11,28 +11,12 @@ angular.module('starter', [
   'ionic-datepicker',
   'ui.calendar',
  'starter.services'])
-.config(function($httpProvider,ionicDatePickerProvider) {
+.config(function($httpProvider) {
   // $httpProvider.defaults.headers.common = {};
   // $httpProvider.defaults.headers.post = {};
   // $httpProvider.defaults.headers.put = {};
   // $httpProvider.defaults.headers.patch = {};
-  var datePickerObj = {
-      inputDate: new Date(),
-      setLabel: 'Set',
-      todayLabel: 'Today',
-      closeLabel: 'Close',
-      mondayFirst: false,
-      weeksList: ["S", "M", "T", "W", "T", "F", "S"],
-      monthsList: ["Jan", "Feb", "March", "April", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"],
-      templateType: 'popup',
-      from: new Date(2012, 8, 1),
-      to: new Date(2018, 8, 1),
-      showTodayButton: true,
-      dateFormat: 'dd MMMM yyyy',
-      closeOnSelect: false,
-      disableWeekdays: [6],
-    };
-    ionicDatePickerProvider.configDatePicker(datePickerObj);
+
   $httpProvider.interceptors.push(function() {
     return {
       request: function(req) {
@@ -102,6 +86,15 @@ angular.module('starter', [
       'events-calendar':{
         templateUrl:'templates/events-calendar.html',
         controller:'CalendarCtrl'
+      }
+    }
+  })
+  .state('events.eventDates',{
+    url:'/eventDates',
+    views:{
+      'events-eventDates':{
+        templateUrl:'templates/events-calendarevents.html',
+        controller:'EventDatesCtrl'
       }
     }
   })

@@ -22,7 +22,9 @@ angular
       {title:'calendar',checked:false,icon:'calendar'},
       {title:'messages',checked:false,icon:'chatboxes'},
       {title:'users',checked:false,icon:'person'},
-      {title:'acccount',checked:false,icon:'gear'}
+      {title:'acccount',checked:false,icon:'gear'},
+      {title:'eventDates',checked:false,icon:'list'},
+
     ]
     $scope.clearChecked = function(){
       console.log('hello');
