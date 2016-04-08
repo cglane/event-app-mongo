@@ -20,6 +20,12 @@
           <label class="item item-input">
               <input type="password" placeholder="Password" ng-model="regData.password">
           </label>
+          <label class="item item-input">
+              <input type="text" placeholder="First Name" ng-model="regData.first">
+          </label>
+          <label class="item item-input">
+              <input type="text" placeholder="Last Name" ng-model="regData.last">
+          </label>
       </div>
       <button ng-class = "{turnRed:registerFail}"class="button button-block button-calm" ng-click="registerUser()">Register</button>
  </ion-content>

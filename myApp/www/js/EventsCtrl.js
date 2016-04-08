@@ -3,7 +3,7 @@
 
 angular
   .module('starter')
-  .controller('EventsCtrl', function($scope, $stateParams, MainService,$ionicSideMenuDelegate) {
+  .controller('EventsCtrl', function($location,$scope, $state,$stateParams, MainService,$ionicSideMenuDelegate) {
     var eventId = localStorage.getItem('eventId');
     $scope.toggleLeft = function() {
       $ionicSideMenuDelegate.toggleLeft();
@@ -27,11 +27,14 @@ angular
 
     ]
     $scope.clearChecked = function(){
-      console.log('hello');
+      $location.path('events/tab');
       $scope.list.forEach(function(el){
-        console.log(el.checked)
         el.checked = false;
       })
     }
+    $scope.enterState = function(stateID) {
+            console.log(stateID);
+            $state.go('events.'+stateID)
+    };
   })
 })();

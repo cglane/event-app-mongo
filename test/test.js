@@ -6,12 +6,12 @@ var winston = require('winston');
 var config = require('../config');
   // I want to create a connection with the database, and when I'm done, I call done().
   var user,token,userId,localEvent,eventId,bool,eventDateId,emailBody,textBody;
-  var url = 'http://localhost:8080'
+  var url = 'http://localhost:3000'
       before(function(done){
         mongoose.connect(config.database);
         user = {username:'node',password:'node',email:'charleslane23@gmail.com',phone:'+18436479951'};
         bool = true
-        localEvent = {eventTitle:'Test for Calendar',city:'charleston',state:'sc',zip:'29401'}
+        localEvent = {eventTitle:'Test for Calendar',city:'charleston',state:'sc',zip:'29401',users:[],admins:[]}
         localEventDate = {title:'it is raining',start:Date.now(),textMsg:{bool:true,time:1000},email:{bool:true,time:1000}};
         emailBody = {emailBody:'this is an email',emailSubject:'this is an email subject'};
         textBody = {textBody:'this is a textBody'}
@@ -141,7 +141,7 @@ var config = require('../config');
                               throw err;
                             }
                             var items = JSON.parse(res.text);
-                          eventId = items[0]._id;
+                            eventId = items[items.length-1]._id;
                             res.status.should.be.equal(200);
                             // this is should.js syntax, very clear
                             // res.should.have.property('status', 400);
@@ -179,13 +179,33 @@ var config = require('../config');
                           throw err;
                         }
                         var items = JSON.parse(res.text);
-                        assert(items.eventTitle == localEvent.eventTitle)
+                        assert(items.eventTitle === localEvent.eventTitle)
                         // res.status.should.be.equal(200);
                         // this is should.js syntax, very clear
                         // res.should.have.property('status', 400);
                         done();
                       });
                   });
+                  it('should be able to invite user to  event ', function(done) {
+                      request(url)
+                      .put('/api/invitetoevent/'+eventId+'/'+false)
+                      .set('x-access-token',token)
+                      .send(user)
+
+                      //set token
+                      // end handles the response
+                      .end(function(err, res) {
+                            if (err) {
+                              throw err;
+                            }
+                              var items = JSON.parse(res.text);
+                              console.log(items)
+                              // res.status.should.be.equal(200);
+                            // this is should.js syntax, very clear
+                            res.should.have.property('status', 200);
+                            done();
+                          });
+                      });
                   it('should be able to create event date', function(done) {
                       request(url)
                       .post('/api/createeventdate/'+eventId)
@@ -216,7 +236,7 @@ var config = require('../config');
                                   throw err;
                                 }
                                 var items = JSON.parse(res.text)
-                                eventDateId = items[10]._id;
+                                eventDateId = items[0]._id;
                                 res.status.should.be.equal(200);
                                 // this is should.js syntax, very clear
                                 // res.should.have.property('status', 400);
@@ -242,6 +262,7 @@ var config = require('../config');
                                     done();
                                   });
                               });
+
                               it('should be able to delete event Date', function(done) {
                                   request(url)
                                   .delete('/api/deleteeventdate/'+eventDateId+'/'+eventId)
@@ -259,6 +280,7 @@ var config = require('../config');
                                         done();
                                       });
                                   });
+
                                   // it('should be able send email', function(done) {
                                   //     request(url)
                                   //     .post('/api/sendemail/'+eventId)

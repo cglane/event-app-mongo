@@ -28,6 +28,55 @@
             }
           });
     }
+    var updateUser = function(user,userId){
+      return $http({
+            url: '/api/updateuser/'+userId,
+            dataType: 'json',
+            method: 'PUT',
+            data: user,
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
+    var getEventUsers = function(){
+      return $http({
+            url: '/api/geteventusers/'+localStorage.getItem('eventId'),
+            dataType: 'json',
+            method: 'GET',
+            data: '',
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
+    var addUserToEvent = function(userId,bool){
+      return $http({
+            url: '/api/addtoevent/'+userId+'/'+localStorage.getItem('eventId')+'/'+bool,
+            dataType: 'json',
+            method: 'PUT',
+            data: '',
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
+    var inviteToEvent = function(invitee,bool){
+      return $http({
+            url: '/api/invitetoevent/'+localStorage.getItem('eventId')+'/'+bool,
+            dataType: 'json',
+            method: 'PUT',
+            data: invitee,
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
+
     var createEvent = function(object){
       return $http({
             url: '/api/createevent/'+localStorage.getItem('currId'),
@@ -102,7 +151,7 @@
           });
           }
 
-    var updateUser = function(user,currId){
+    var updateProfile = function(user,currId){
       return $http({
             url: '/api/updateprofile/'+localStorage.getItem("currId"),
             dataType: 'json',
@@ -114,10 +163,25 @@
             }
           });
           }
-
+      var sendTextInvite = function(data){
+        return $http({
+              url: '/api/sendtextinvite',
+              dataType: 'json',
+              method: 'POST',
+              data: data,
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token":token
+              }
+            });
+      }
 
 
     return{
+      sendTextInvite:sendTextInvite,
+      updateUser:updateUser,
+      inviteToEvent:inviteToEvent,
+      getEventUsers:getEventUsers,
       editEventDate:editEventDate,
       createEventDate:createEventDate,
       getEventDates:getEventDates,
@@ -128,7 +192,7 @@
       registerUser:registerUser,
       authenticateUser:authenticateUser,
       getUsers:getUsers,
-      updateUser:updateUser
+      updateProfile:updateProfile
     };
   });
 

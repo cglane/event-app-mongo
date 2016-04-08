@@ -1,0 +1,32 @@
+<div ng-controller = "UserCtrl"class="list">
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">First Name</span>
+    <input ng-model = "inviteData.first"type="text" placeholder="John">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Last Name</span>
+    <input ng-model = "inviteData.last"type="text" placeholder="Smith">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Phone Number</span>
+    <input ng-model = "inviteData.phone"type="tel" placeholder="+18435555555">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Email</span>
+    <input ng-model = "inviteData.email"type="email" placeholder="john@aol.com">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Admin Priviledges?</span>
+    <select ng-model = "inviteData.admin" name="">
+      <option value="true">Yes</option>
+      <option value = "false">No</option>
+    </select>
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Send Text?</span>
+    <select ng-model = "inviteData.text" name="">
+      <option value="true">Yes</option>
+      <option value = "false">No</option>
+    </select>
+  </label>
+</div>

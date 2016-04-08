@@ -71,7 +71,7 @@ var apiRoutes = express.Router();
 //authenticate with token
 require("./app/authenticate.js")(apiRoutes,jwt,app)
 //routes that require token authentication
-require('./app/routes.js')(apiRoutes)
+require('./app/routes.js')(apiRoutes,jwt,app)
 //adding prefix of api to all fo these routes
 app.use('/api', apiRoutes);
 // ===============================================

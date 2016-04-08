@@ -4,10 +4,78 @@ var EventDate = require('./models/eventDates.js');
 var _ = require('underscore');
 var waterfall = require('async-waterfall');
 var timer = require('./timers.js');
+var mongoose = require('mongoose');
+var Promise = require('es6-promise').Promise;
+
+
 // var NodeMail = require('./nodemailer.js');
 // var Twilio = require('./sms.js')
-
-module.exports = function (apiRoutes) {
+function callback(err,result){
+  if(err)throw err;
+  res.send(result)
+}
+//return a promise so that res of api call is within scope
+var addToEvent = function(eventId,userId,admin,callback){
+  return new Promise(function(success, fail) {
+    Events.findOne({_id:eventId}).exec(function(err,event){
+      event[admin].push(mongoose.Types.ObjectId(userId));
+      event.save(function(err,newEvent){
+        if(err){
+          fail(err)
+        }else{
+          success(newEvent)
+        }
+      })
+    });
+  });
+}
+var addUpUsers = function(eventObject){
+  var users = [];
+  if(eventObject.admins){
+    _.each(eventObject.admins,function(el){
+      users.push(parseInt(el));
+    })
+  }
+  if(eventObject.users){
+    _.each(eventObject.users,function(el){
+      users.push(parseInt(el));
+    })
+  }
+  return users;
+}
+var addUpUserId = function(eventObject){
+  var users = [];
+  if(eventObject.admins){
+    _.each(eventObject.admins,function(el){
+      users.push(el);
+    })
+  }
+  if(eventObject.users){
+    _.each(eventObject.users,function(el){
+      users.push(el);
+    })
+  }
+  return users;
+}
+var addToEventUserExists = function(eventId,userId,admin,callback){
+  return new Promise(function(success, fail) {
+      Events.findOne({_id:eventId},function(err,event){
+          if(err) throw err;
+          var users = addUpUsers(event);
+          if(!_.contains(users,parseInt(userId))){
+              addToEvent(eventId,userId,admin,callback)
+                .then(function(data){
+                  success(data)
+                }).catch(function(error){
+                  console.error(error)
+                })
+            }else{
+              success({success:false,content:'user already exists'})
+            }
+        });
+      });
+};
+module.exports = function (apiRoutes,jwt,app) {
 
   apiRoutes.get('/', function(req, res) {
   	res.json({ message: 'Welcome to the coolest API on earth!' });
@@ -34,9 +102,10 @@ module.exports = function (apiRoutes) {
       else{
         user.username= req.body.username;
         user.password=req.body.password;
-        user.token = req.body.token;
         user.email = req.body.email;
         user.phone = req.body.phone;
+        user.lastName = req.body.lastName;
+        user.firstName = req.body.firstName;
         user.save(function(err,user){
           if(err)throw err;
           res.json({
@@ -47,11 +116,31 @@ module.exports = function (apiRoutes) {
       }
     })
   });
+  apiRoutes.put('/updateuser/:user_id',function(req,res){
+    var id = req.params.user_id;
+    User.findOne({_id:id},function(err,user){
+      if(err) throw err;
+      else{
+        user.email = req.body.email;
+        user.phone = req.body.phone;
+        user.lastName = req.body.lastName;
+        user.firstName = req.body.firstName;
+        user.save(function(err,user){
+          if(err) throw err;
+          res.json({
+            success:true,
+            user:user
+          })
+        })
+      }
+    })
+  })
   apiRoutes.post('/createevent/:user_id',function(req,res){
     var userId = req.params.user_id;
     var newEvent = new Events({
       eventTitle: req.body.eventTitle,
       admins:[userId],
+      users:[],
       location:{
         city:req.body.city,
         state:req.body.state,
@@ -99,6 +188,16 @@ module.exports = function (apiRoutes) {
     })
 
   });
+  apiRoutes.get('/geteventusers/:eventId',function(req,res){
+    var eventId = req.params.eventId;
+    Events.findOne({'_id':eventId},function(err,event){
+      if(err) throw err;
+      User.find({_id:{$in:addUpUserId(event)}},function(err,allUsers){
+        if(err)throw err;
+        res.send(allUsers)
+      })
+    })
+  })
   //removes event from user event array and user from event collection
   apiRoutes.put('/deleteeventsuser/:userId/:eventId',function(req,res){
     var userId = req.params.userId;
@@ -114,35 +213,64 @@ module.exports = function (apiRoutes) {
       res.send({success:true})
     })
   });
+  apiRoutes.put('/invitetoevent/:eventId/:bool',function(req,res){
+    var eventId = req.params.eventId;
+    var bool = req.params.bool;
+    var text = req.params.text;
+    var nick = new User({
+      username: req.body.email,
+      password: 'newPassword',
+      email: req.body.email,
+      phone: req.body.phone,
+    });
+    User.find({username:req.body.email},function(err,user){
+      if(err) throw err;
+      console.log(!user.length,'user.length')
+      if(!user.length){
+        nick.save(function(err,body){
+          if(err) throw err;
+          console.log('User'+body.username+'saved successfully');
+          var token = jwt.sign(body,app.get('superSecret'),{
+            expiresIn:86400
+            })
+            if(bool === 'true'){
+              //add to event as admin
+              //add event to user events array
+              addToEvent(eventId,body._id,'admins')
+                .then(res.send.bind(res))
+                .catch(console.error);
+
+            }else{
+              //add to event as user
+              //add event to user events array
+              addToEvent(eventId,body._id,'users')
+              .then(res.send.bind(res))
+              .catch(console.error);
+            }
+        })
+      }else{
+        //user already exists adding them to event list
+          if(bool === 'true'){
+            //checks if user already invited
+            addToEventUserExists(eventId,user[0]._id,'admins')
+            .then(res.send.bind(res))
+          }else{
+            addToEventUserExists(eventId,user[0]._id,'users')
+              .then(res.send.bind(res))
+              .catch(console.error)
+          }
+      }
+    })
+  })
   //add user to Event specify admin or regular userId
   apiRoutes.put('/addtoevent/:userId/:eventId/:bool',function(req,res){
     var userId = req.params.userId;
     var eventId = req.params.eventId;
     var bool = req.params.bool;
     if(bool === 'true'){
-      Events.update({_id:eventId},{
-        $addToSet:{'admins':userId}
-      },function(err){
-        if(err)throw err;
-        User.update({_id:userId},{
-          $addToSet:{'events':eventId}
-        },function(err,user){
-          if(err) throw err;
-          res.send({succcess:true})
-        })
-      })
+      addToEvent(eventId,userId,'admins')
     }else{
-      Events.update({_id:eventId},{
-        $addToSet:{'users':userId}
-      },function(err){
-        if(err)throw err;
-        User.update({_id:userId},{
-          $addToSet:{'events':eventId}
-        },function(error,user){
-          if(error) throw error;
-          res.send({succcess:true})
-        })
-      })
+      addToEvent(eventId,userId,'users')
     }
 
   })
@@ -167,13 +295,12 @@ module.exports = function (apiRoutes) {
     }
   },function(err,thisEvent){
       if(err)throw err;
-      res.send({success:true,eventTitle:req.body.eventTitle})
+      res.send(thisEvent)
     })
   })
   apiRoutes.post('/createeventdate/:eventId',function(req,res){
     var eventId = req.params.eventId;
     var data = req.body;
-    console.log(data,'dat from create event date')
     var localDoc = new EventDate({
       title: data.title,
       start: data.start,
@@ -235,7 +362,6 @@ module.exports = function (apiRoutes) {
         'time':req.body.email.time
       }
     }
-    console.log(updatedObj,'updatedObj')
     EventDate.findByIdAndUpdate(
         eventDateId,
         updatedObj,
@@ -297,4 +423,14 @@ module.exports = function (apiRoutes) {
       })
     })
   })
+  apiRoutes.post('/sendtextinvite',function(req,res){
+    var phone = req.body.phone;
+    // var eventName = req.body.eventName;
+    var username = req.body.username;
+    var password = 'newPassword'
+    var textBody = "You have been invited to an event. http://localhost:3030/register Sign in with the username: "+username+' and password: '+password;
+    require('./sms.js')(phone,textBody)
+    res.send('text message sent')
+  })
+
 }

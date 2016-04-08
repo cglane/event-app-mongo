@@ -1,8 +1,11 @@
 <ion-view view-title="Dash">
   <ion-content>
     <ion-list>
+      <ion-item class = 'text-center'>
+      <button ng-click= 'createEvent()'type="button" name="button">Create New Event</button>
+      <ion-item>
       <ion-item class="item-remove-animate item-avatar item-icon-right text-center" type="item-text-wrap" href="#/events/dash/{{event._id}}">
-        <h2 id = "create-new-event">Create New Event</h2>
+        <!-- <h2 ng-click = 'createEvent()' id = "create-new-event">Create New Event</h2> -->
         <i class="icon ion-chevron-right icon-accessory"></i>
         <ion-option-button class="button-assertive" ng-click="remove(chat)">
           Delete

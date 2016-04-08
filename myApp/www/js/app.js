@@ -74,7 +74,7 @@ angular.module('starter', [
   .state('events.dash',{
     url:'/dash',
     views:{
-      'events-dash':{
+      'eventsContent':{
         templateUrl:'templates/tab-events.html',
         controller:'EventsCtrl'
       }
@@ -83,7 +83,7 @@ angular.module('starter', [
   .state('events.calendar',{
     url:'/calendar',
     views:{
-      'events-calendar':{
+      'eventsContent':{
         templateUrl:'templates/events-calendar.html',
         controller:'CalendarCtrl'
       }
@@ -92,7 +92,7 @@ angular.module('starter', [
   .state('events.eventDates',{
     url:'/eventDates',
     views:{
-      'events-eventDates':{
+      'eventsContent':{
         templateUrl:'templates/events-calendarevents.html',
         controller:'EventDatesCtrl'
       }
@@ -101,7 +101,7 @@ angular.module('starter', [
   .state('events.users',{
     url:'/users',
     views:{
-      'events-user':{
+      'eventsContent':{
         templateUrl:'templates/events-user.html',
         controller:'UserCtrl'
       }
@@ -110,7 +110,7 @@ angular.module('starter', [
   .state('events.messages',{
     url:'/messages',
     views:{
-      'events-message':{
+      'eventsContent':{
         templateUrl:'templates/events-message.html',
         controller:'MessageCtrl'
       }
@@ -119,7 +119,7 @@ angular.module('starter', [
   .state('events.account',{
     url:'/account',
     views:{
-      'events-account':{
+      'eventsContent':{
         templateUrl:'templates/events-account.html',
         controller:'AccountCtrl'
       }

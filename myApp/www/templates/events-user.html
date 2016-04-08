@@ -1,0 +1,20 @@
+<ion-view name = "Users">
+  <ion-nav-buttons side="left">
+    <button menu-toggle="left"class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+  <ion-content>
+    <button ng-click = "inviteUser()"type="button" name="button">Invite Someone</button>
+    {{eventUsers[0].username}}
+    <div class="card" ng-repeat="user in eventUsers">
+      <div class="item item-divider">
+          {{user.lastName || user.username}} {{user.firstName}}
+          <button style = "float:right"class = " button button-calm"ng-click = "editUser($index)"type="button" name="button">Edit User</button>
+      </div>
+      <div class="item item-text-wrap">
+          <strong>Email: {{user.email}}</strong>
+          <br>
+          <strong>Phone: {{user.phone}}</strong>
+      </div>
+        </div>
+    </ion-content>
+</ion-view>

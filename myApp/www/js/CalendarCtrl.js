@@ -3,7 +3,7 @@
 
 angular
   .module('starter')
-  .controller('CalendarCtrl', function($scope, ionicDatePicker,$ionicPopup,$compile,$stateParams,MainService,uiCalendarConfig) {
+  .controller('CalendarCtrl', function($scope,$ionicPopup,$compile,$stateParams,MainService,uiCalendarConfig) {
 
     var createEventDate = function(data){
       MainService.createEventDate(data).success(function(data){
@@ -165,7 +165,6 @@ $scope.formPopup = function() {
    var myPopup = $ionicPopup.show({
      templateUrl: 'templates/edit-popup.html',
      title: 'Edit Event',
-     subTitle: 'Please use normal things',
      scope: $scope,
      buttons: [
        { text: 'Cancel' },
@@ -242,11 +241,26 @@ $scope.formPopup = function() {
   };
   /* alert on Drop */
    $scope.alertOnDrop = function(event, delta, revertFunc, jsEvent, ui, view){
-     console.log(event,'event')
+    //  console.log(event,'event')
+     console.log(delta,'delta')
+     var d = delta._days;
+     var start,end;
+     //native function does not add or subtract exactly 24 hours from object per day delta
+     $scope.events.forEach(function(el){
+       if(el._id === event._id){
+         if(d >= 0){
+            start = moment(el.start).add(d,'days');
+            end = moment(el.end).add(d,'days')
+         }else{
+           start = moment(el.start).subtract((d*-1),'days');
+           end = moment(el.end).subtract((d*-1),'days')
+         }
+       }
+     })
      var currObject = {
        title:event.title,
-       start:event.start._d,
-       end:event.end._d,
+       start:start,
+       end:end,
        email:{
          bool:event.email.bool,
          time:event.email.time
