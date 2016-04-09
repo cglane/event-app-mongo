@@ -4,6 +4,39 @@
 angular
   .module('starter')
   .controller('UserCtrl', function($ionicPopup,$scope,MainService,$window,$http) {
+    /////////////////////GOOGLE API////////////////////////////
+      var googleContactsInfo = function(){
+          var clientID = '11087199701161-5p2msmfiojl0bovne4fn0mi879lb3fbj.apps.googleusercontent.com';
+           var apiKey = 'AIzaSyCze72Ua9-MWfqD_6wWLt29H0Cri1tKpos';
+           var scopes = 'https://www.googleapis.com/auth/contacts.readonly';
+           $scope.getGoogleContacts = function(){
+             gapi.client.setApiKey(apiKey);
+             window.setTimeout(authorize);
+           };
+           function authorize() {
+             gapi.auth.authorize({client_id: '110291095446-af18dht1lp2gmuk41ss88d4q36hpf87h.apps.googleusercontent.com', scope: scopes, immediate: false}, handleAuthorization);
+           }
+           function handleAuthorization(authorizationResult) {
+             if (authorizationResult && !authorizationResult.error) {
+               $.get("https://www.google.com/m8/feeds/contacts/default/thin?alt=json&access_token=" + authorizationResult.access_token + "&max-results=500&v=3.0",
+                 function(response){
+                   //process the response here
+                   var editResponse = [];
+
+                  response.feed.entry.forEach(function(el){
+                    if(el.gd$name && el.gd$email){
+                      var object = {
+                        name : el.gd$name.gd$fullName.$t,
+                        email: el.gd$email[0].address
+                      }
+                    }
+                  })
+                  return editResponse
+                 });
+             }
+           }
+         }
+         /////////////////////////////////////////////////
 
       var getUsers = function(){
         MainService.getEventUsers().success(function(users){
@@ -96,6 +129,30 @@ angular
            ]
          });
         };
+        $scope.googleContacts = function(){
+
+          $scope.googleContactInfo = googleContactsInfo();
+          $scope.googleInviteData = {}
+          var d = $scope.googleInviteData;
+          // An elaborate, custom popup
+          var myPopup = $ionicPopup.show({
+            templateUrl: 'templates/googleContacts.html',
+            title: 'Invite Google Contacts',
+            scope: $scope,
+            buttons: [
+              { text: 'Cancel' },
+              {
+                text: '<b>Save</b>',
+                type: 'button-positive',
+                onTap: function(e) {
+                  console.log($scope.googleInviteData)
+
+                }
+              }
+            ]
+          });
+         };
+
 
   })
 })();

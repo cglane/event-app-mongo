@@ -10,10 +10,7 @@ var Promise = require('es6-promise').Promise;
 
 // var NodeMail = require('./nodemailer.js');
 // var Twilio = require('./sms.js')
-function callback(err,result){
-  if(err)throw err;
-  res.send(result)
-}
+
 //return a promise so that res of api call is within scope
 var addToEvent = function(eventId,userId,admin,callback){
   return new Promise(function(success, fail) {

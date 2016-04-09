@@ -62,7 +62,7 @@ app.use(allowCrossDomain);
 //routes that do not require tokens
 require('./app/serialize.js')(User,app,jwt)
 require('./app/noauthRoutes.js')(app,User,publicFolder,passport,jwt);
-
+require('./app/gContacts.js')();
 // ---------------------------------------------------------
 // get an instance of the router for api routes
 // ---------------------------------------------------------

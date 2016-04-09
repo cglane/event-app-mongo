@@ -2,8 +2,15 @@ module.exports = {
 
 	'secret': 'ilovecharles',
 	'database': 'mongodb://node:node@jello.modulusmongo.net:27017/a6hExuja',
+	'facebookAuth':{
         'clientID'      : '1982378175320711', // your App ID
         'clientSecret'  : '7efd322126db55949ade4877ce99e027', // your App Secret
-        'callbackURL'   : 'http://localhost:8080/auth/facebook/callback'
+        'callbackURL'   : 'http://localhost:3000/auth/facebook/callback'
+			},
+	'googleAuth' : {
 
+         'clientID'      : '1087199701161-583gupdifutsk5bbhokr3beivatk72m6.apps.googleusercontent.com',
+         'clientSecret'  : '-i_dYSamo4Rde6zRGLARQbpr',
+         'callbackURL'   : 'http://localhost:3000/auth/google/callback'
+    }
 };

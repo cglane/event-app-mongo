@@ -2,7 +2,10 @@
 function setupAuth(User, app,jwt) {
   var passport = require('passport');
   var FacebookStrategy = require('passport-facebook').Strategy;
-  var Config = require('../config.js')
+  var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+  var Config = require('../config.js');
+  var GoogleContacts = require('google-contacts-api');
+
   var globalUser;
   var token;
   // High level serialize/de-serialize configuration for passport
@@ -19,9 +22,9 @@ function setupAuth(User, app,jwt) {
   // Facebook-specific
   passport.use(new FacebookStrategy(
     {
-      clientID: '1982378175320711',
-      clientSecret: '7efd322126db55949ade4877ce99e027',
-      callbackURL: 'http://localhost:3000/auth/facebook/callback',
+      clientID: Config.facebookAuth.clientID,
+      clientSecret: Config.facebookAuth.clientSecret,
+      callbackURL: Config.facebookAuth.callbackURL,
       // Necessary for new version of Facebook graph API
       profileFields: ['id', 'emails', 'name']
     },
@@ -108,36 +111,47 @@ function setupAuth(User, app,jwt) {
       console.log('greate success');
       res.send({global:globalUser,token:token})
     })
-  // Express routes for auth
-  // app.get('/auth/facebook',
-  //   passport.authenticate('facebook', { scope: ['email'] }));
-  //
-  // app.get('/auth/facebook/callback', function(req, res, next) {
-  //   passport.authenticate('facebook', function(err, guy, info) {
-  //       if (err) { return next(err); }
-  //       if (!guy) { return res.redirect('/'); }
-  //       console.log(guy,'guy')
-  //       // find the user
-  //       User.findOne({
-  //         username: guy.username
-  //       }, function(err, user) {
-  //
-  //         if (err) throw err;
-  //
-  //         if (!user) {
-  //           res.json({ success: false, message: 'Authentication failed. User not found.' });
-  //         } else {
-  //             var token = jwt.sign(user, app.get('superSecret'), {
-  //               expiresIn: 86400 // expires in 24 hours
-  //             });
-  //             console.log(token,'token');
-  //             // res.json({success:true})
-  //             // return res.redirect('http://localhost:8080/#/facebook/'+token+'/'+user._id);
-  //             return res.redirect('/#/main')
-  //           }
-  //       });
-  //       })(req, res, next);
-  //     });
+  ///////////GOOGLE///////////////////////////////////////////////////////////////////////////////////
+//     passport.use(new GoogleStrategy({
+//
+//     clientID        : Config.googleAuth.clientID,
+//     clientSecret    : Config.googleAuth.clientSecret,
+//     callbackURL     : Config.googleAuth.callbackURL,
+//
+// },
+// function(token, refreshToken, profile, done) {
+//   console.log(token,'token')
+  // console.log(token,'token')
+  // console.log(refreshToken,'refreshToken')
+  // var client = require('gdata-js')(Config.googleAuth.clientID, Config.googleAuth.clientSecret);
+  // var refresh = '1/zo_VgMe1Bot_OuWCAlKPibhhyT_eQI2AaAqzhqjWHpAMEudVrK5jSpoR30zcRFq6'
+  // client.setToken({ access_token: token, refresh_token: refreshToken });
+  // client.getFeed('https://www.google.com/m8/feeds/contacts/default/full', function (err, result) {
+  //   console.log(result)
+  // });
+//   var contacts = new GoogleContacts({ token : 'ya29..vwKTqETBEZ0tw_L3kJcFA7X439aAsFlBfO2AmiZwVwjoDMcIRy_VjuUhaRH6IORz_A' });
+//   contacts.getContacts(function(err, contacts) {
+//       console.log(contacts,'contacts')
+//   });
+//
+// }));
+// var contacts = new GoogleContacts({ token : 'ya29..vwKTqETBEZ0tw_L3kJcFA7X439aAsFlBfO2AmiZwVwjoDMcIRy_VjuUhaRH6IORz_A' });
+// contacts.getContacts(function(err, contacts) {
+//     console.log(contacts,'contacts')
+// });
+// var address = 'https://www.google.com/m8/feeds/contacts/default/full?alt=json&oauth_token=ya29..vgKctRcaRGi1G0-CuB-qdSmwDWOxgDt_JuElmSX3gkT58lio2k6hxAhr_3W-k2szzg'
+// var token = 'ya29..vgKctRcaRGi1G0-CuB-qdSmwDWOxgDt_JuElmSX3gkT58lio2k6hxAhr_3W-k2szzg'
+// app.get('/auth/google', passport.authenticate('google', { scope:
+//                                       ['https://www.googleapis.com/auth/userinfo.profile',
+//                                       'https://www.googleapis.com/auth/userinfo.email'],
+//                                       access_type: 'offline', approval_prompt: 'force' }));
+//
+//     // the callback after google has authenticated the user
+//     app.get('/auth/google/callback',
+//             passport.authenticate('google', {
+//                     successRedirect : '/#/events/users',
+//                     failureRedirect : '/#/'
+//             }));
 }
 
 module.exports = setupAuth;

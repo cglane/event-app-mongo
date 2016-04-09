@@ -4,6 +4,25 @@
 angular
   .module('main')
   .controller('MainController',function($interval,MainService,$scope,$state,$timeout){
+    var clientId = '11087199701161-5p2msmfiojl0bovne4fn0mi879lb3fbj.apps.googleusercontent.com';
+         var apiKey = 'AIzaSyCze72Ua9-MWfqD_6wWLt29H0Cri1tKpos';
+         var scopes = 'https://www.googleapis.com/auth/contacts.readonly';
+         $scope.getGoogleContacts = function(){
+           gapi.client.setApiKey(apiKey);
+           window.setTimeout(authorize);
+         };
+         function authorize() {
+           gapi.auth.authorize({client_id: '110291095446-af18dht1lp2gmuk41ss88d4q36hpf87h.apps.googleusercontent.com', scope: scopes, immediate: false}, handleAuthorization);
+         }
+         function handleAuthorization(authorizationResult) {
+           if (authorizationResult && !authorizationResult.error) {
+             $.get("https://www.google.com/m8/feeds/contacts/default/thin?alt=json&access_token=" + authorizationResult.access_token + "&max-results=500&v=3.0",
+               function(response){
+                 //process the response here
+                 console.log(response);
+               });
+           }
+         }
     //check if user is logged in, if logged in go to user page
     if(localStorage.getItem('token')&&localStorage.getItem('currId')){
       MainService.getUserInfo()
