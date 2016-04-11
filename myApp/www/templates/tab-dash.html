@@ -11,7 +11,7 @@
           Delete
         </ion-option-button>
       </ion-item>
-      <ion-item ng-click = "setEventId(event._id)"class="item-remove-animate item-avatar item-icon-right text-center" ng-repeat="event in userEvents" type="item-text-wrap" href="#/events/dash/{{event._id}}">
+      <ion-item ng-click = "setEventId(event._id,event.eventTitle)"class="item-remove-animate item-avatar item-icon-right text-center" ng-repeat="event in userEvents" type="item-text-wrap" href="#/events/dash/{{event._id}}">
         <h2>{{event.eventTitle}}</h2>
         <p>
           {{event.date}}

@@ -11,7 +11,9 @@
   "dependencies": {
     "ngCordova": "~0.1.24-alpha",
     "moment": "~2.12.0",
-    "angular-ui-calendar": "~1.0.1"
+    "angular-ui-calendar": "~1.0.1",
+    "ng-file-upload": "~12.0.4",
+    "angular-file-upload": "~2.2.0"
   },
   "homepage": "https://github.com/cglane/event-app-mongo",
   "description": "",

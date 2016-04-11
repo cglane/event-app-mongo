@@ -52,6 +52,18 @@
             }
           });
     }
+    var getEventInfo = function(){
+      return $http({
+            url: '/api/geteventinfo/'+localStorage.getItem('eventId'),
+            dataType: 'json',
+            method: 'GET',
+            data: '',
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
     var addUserToEvent = function(userId,bool){
       return $http({
             url: '/api/addtoevent/'+userId+'/'+localStorage.getItem('eventId')+'/'+bool,
@@ -66,7 +78,7 @@
     }
     var inviteToEvent = function(invitee,bool){
       return $http({
-            url: '/api/invitetoevent/'+localStorage.getItem('eventId')+'/'+bool,
+            url: '/api/invitetoevent/'+localStorage.getItem('eventId')+'/'+bool+'/'+localStorage.getItem('eventTitle'),
             dataType: 'json',
             method: 'PUT',
             data: invitee,
@@ -175,9 +187,74 @@
               }
             });
       }
+      var sendEmailInvite = function(data){
+        return $http({
+              url: '/api/sendemailinvite',
+              dataType: 'json',
+              method: 'POST',
+              data: data,
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token":token
+              }
+            });
+      }
+      var sendEmail = function(body){
+        return $http({
+              url: '/api/sendemail/'+localStorage.getItem('eventId'),
+              dataType: 'json',
+              method: 'POST',
+              data: body,
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token":token
+              }
+            });
+      }
+      var sendText = function(body){
+        return $http({
+              url: '/api/sendtext/'+localStorage.getItem('eventId'),
+              dataType: 'json',
+              method: 'POST',
+              data: body,
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token":token
+              }
+            });
+      }
+      var removeUser = function(userId,admin){
+        return $http({
+              url: '/api/deleteeventsuser/'+userId+'/'+localStorage.getItem('eventId'),
+              dataType: 'json',
+              method: 'PUT',
+              data: '',
+              headers: {
+                "Content-Type": "application/json",
+                "x-access-token":token
+              }
+            });
+      }
 
+      var uploadPhoto = function(file){
+        return $http({
+              url: '/api/uploadphoto/',
+              method: 'POST',
+              data: file,
+              headers: {
+                "Content-Type": undefined,
+                "x-access-token":token
+              }
+            });
+      }
 
     return{
+      uploadPhoto:uploadPhoto,
+      getEventInfo:getEventInfo,
+      removeUser:removeUser,
+      sendText:sendText,
+      sendEmail:sendEmail,
+      sendEmailInvite:sendEmailInvite,
       sendTextInvite:sendTextInvite,
       updateUser:updateUser,
       inviteToEvent:inviteToEvent,

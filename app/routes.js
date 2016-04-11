@@ -10,9 +10,25 @@ var Promise = require('es6-promise').Promise;
 
 // var NodeMail = require('./nodemailer.js');
 // var Twilio = require('./sms.js')
-
+var addEventToUser = function(eventId,userId,eventTitle,admin){
+  //turn admin param to boolean value
+  var bool = (admin === 'admins')? true: false
+  User.findOne({_id:userId}).exec(function(err,user){
+    user.events.push({
+      eventId:mongoose.Types.ObjectId(eventId),
+      eventTitle:eventTitle,
+      admin:bool,
+    })
+    user.save(function(err,updatedUser){
+      if(err)throw err;
+      else{
+        console.log(updatedUser,'updatedUser')
+      }
+    })
+  })
+}
 //return a promise so that res of api call is within scope
-var addToEvent = function(eventId,userId,admin,callback){
+var addToEvent = function(eventId,userId,admin,eventTitle){
   return new Promise(function(success, fail) {
     Events.findOne({_id:eventId}).exec(function(err,event){
       event[admin].push(mongoose.Types.ObjectId(userId));
@@ -20,6 +36,7 @@ var addToEvent = function(eventId,userId,admin,callback){
         if(err){
           fail(err)
         }else{
+          addEventToUser(eventId,userId,eventTitle,admin);
           success(newEvent)
         }
       })
@@ -54,13 +71,13 @@ var addUpUserId = function(eventObject){
   }
   return users;
 }
-var addToEventUserExists = function(eventId,userId,admin,callback){
+var addToEventUserExists = function(eventId,userId,admin,eventTitle){
   return new Promise(function(success, fail) {
       Events.findOne({_id:eventId},function(err,event){
           if(err) throw err;
           var users = addUpUsers(event);
           if(!_.contains(users,parseInt(userId))){
-              addToEvent(eventId,userId,admin,callback)
+              addToEvent(eventId,userId,admin,eventTitle)
                 .then(function(data){
                   success(data)
                 }).catch(function(error){
@@ -72,7 +89,7 @@ var addToEventUserExists = function(eventId,userId,admin,callback){
         });
       });
 };
-module.exports = function (apiRoutes,jwt,app) {
+module.exports = function (apiRoutes,jwt,app,mailer,upload) {
 
   apiRoutes.get('/', function(req, res) {
   	res.json({ message: 'Welcome to the coolest API on earth!' });
@@ -122,6 +139,7 @@ module.exports = function (apiRoutes,jwt,app) {
         user.phone = req.body.phone;
         user.lastName = req.body.lastName;
         user.firstName = req.body.firstName;
+        console.log(user,'user')
         user.save(function(err,user){
           if(err) throw err;
           res.json({
@@ -152,21 +170,37 @@ module.exports = function (apiRoutes,jwt,app) {
             if(err)throw err;
             else{
               //if all goes well add event to user's local event array
-                User.update({
-                _id:userId
-              },
-              {
-                $push:{events:{eventId:eventRes._id,admin:true,eventTitle:eventRes.eventTitle}}},
-                function(err){
-                  if(err) throw err;
-                  res.send(eventRes)
-                });
+              User.findOne({_id:userId}).exec(function(err,user){
+                user.events.push({
+                  eventId:mongoose.Types.ObjectId(eventRes._id),
+                  admin:true,
+                  eventTitle: eventRes.eventTitle
+                })
+                user.save(function(err,user){
+                  if(err){
+                    throw err;
+                  }else{
+                    console.log(user)
+                    res.send(eventRes)
+                  }
+                })
+              });
             }
           })
+        }else{
+          console.log('name already in use')
+          res.send({success:false})
         }
       })
 
   });
+  apiRoutes.get('/geteventinfo/:eventId',function(req,res){
+    var eventId = req.params.eventId;
+    Events.findOne({_id:eventId},function(err,event){
+      if(err)throw err;
+      res.send(event)
+    })
+  })
   apiRoutes.get('/getevents/:userId',function(req,res){
     var userId = req.params.userId;
     var user = User.findOne({'_id':userId});
@@ -196,22 +230,31 @@ module.exports = function (apiRoutes,jwt,app) {
     })
   })
   //removes event from user event array and user from event collection
-  apiRoutes.put('/deleteeventsuser/:userId/:eventId',function(req,res){
+  apiRoutes.put('/deleteeventsuser/:userId/:eventId/',function(req,res){
     var userId = req.params.userId;
     var eventId = req.params.eventId;
     //double call don't know if in user or admin
-    Events.update({_id:eventId},{$pull:{'admins':userId}});
-    Events.update({_id:eventId},{$pull:{'users':userId}});
+    Events.findOneAndUpdate({_id:eventId},{$pull:{'admins':userId}},function(err,event){
+      if(err)throw err;
+      console.log(event,'event')
+    });
+    Events.findOneAndUpdate({_id:eventId},{$pull:{'users':userId}},function(err,event){
+      if(err)throw err;
+      console.log(event,'event')
+    });
 
-    User.update({_id:userId},{
-      $addToSet:{'events':eventId}
-    },function(err){
+    User.findOneAndUpdate({_id:userId},{
+      $pull:{'events':{eventId:eventId}}
+    },function(err,user){
       if(err) throw err;
+      console.log(user,'user')
       res.send({success:true})
     })
+    User.findOne({_id:userId})
   });
-  apiRoutes.put('/invitetoevent/:eventId/:bool',function(req,res){
+  apiRoutes.put('/invitetoevent/:eventId/:bool/:eventTitle',function(req,res){
     var eventId = req.params.eventId;
+    var eventTitle = req.params.eventTitle
     var bool = req.params.bool;
     var text = req.params.text;
     var nick = new User({
@@ -219,28 +262,29 @@ module.exports = function (apiRoutes,jwt,app) {
       password: 'newPassword',
       email: req.body.email,
       phone: req.body.phone,
+      lastName: req.body.last,
+      firstName:req.body.first,
+      events:[]
     });
     User.find({username:req.body.email},function(err,user){
       if(err) throw err;
-      console.log(!user.length,'user.length')
       if(!user.length){
         nick.save(function(err,body){
           if(err) throw err;
-          console.log('User'+body.username+'saved successfully');
           var token = jwt.sign(body,app.get('superSecret'),{
             expiresIn:86400
             })
             if(bool === 'true'){
               //add to event as admin
               //add event to user events array
-              addToEvent(eventId,body._id,'admins')
+              addToEvent(eventId,body._id,'admins',eventTitle)
                 .then(res.send.bind(res))
                 .catch(console.error);
 
             }else{
               //add to event as user
               //add event to user events array
-              addToEvent(eventId,body._id,'users')
+              addToEvent(eventId,body._id,'users',eventTitle)
               .then(res.send.bind(res))
               .catch(console.error);
             }
@@ -249,10 +293,10 @@ module.exports = function (apiRoutes,jwt,app) {
         //user already exists adding them to event list
           if(bool === 'true'){
             //checks if user already invited
-            addToEventUserExists(eventId,user[0]._id,'admins')
+            addToEventUserExists(eventId,user[0]._id,'admins',eventTitle)
             .then(res.send.bind(res))
           }else{
-            addToEventUserExists(eventId,user[0]._id,'users')
+            addToEventUserExists(eventId,user[0]._id,'users',eventTitle)
               .then(res.send.bind(res))
               .catch(console.error)
           }
@@ -398,8 +442,11 @@ module.exports = function (apiRoutes,jwt,app) {
       User.find({_id:{$in:recipients}},function(err,allUsers){
         if(err)throw err;
         _.each(allUsers,function(el){
+          if(el.email){
           require('./nodemailer.js')(el.email,subject,emailBody);
+          }
         })
+        res.send({succcess:'emails Sent'})
       })
     })
   })
@@ -415,11 +462,15 @@ module.exports = function (apiRoutes,jwt,app) {
       User.find({_id:{$in:recipients}},function(err,allUsers){
         if(err)throw err;
         _.each(allUsers,function(el){
-          require('./sms.js')(el.phone,textBody);
+          if(el.phone){
+            console.log(el.phone,'phone')
+            require('./sms.js')(el.phone,textBody);
+          }
         })
       })
     })
   })
+
   apiRoutes.post('/sendtextinvite',function(req,res){
     var phone = req.body.phone;
     // var eventName = req.body.eventName;
@@ -429,5 +480,14 @@ module.exports = function (apiRoutes,jwt,app) {
     require('./sms.js')(phone,textBody)
     res.send('text message sent')
   })
+  apiRoutes.post('/sendemailinvite',function(req,res){
+    var email = req.body.email;
+    var username = req.body.username;
+    var password = 'newPassword';
+    var subject = 'You have been invited to an event';
+    var textContent = 'Sign in a http://localhost:3030/register . Sign in with username: '+username+' and password: '+ password;
+    require('./nodemailer.js')(email,subject,textContent)
+  })
+  
 
 }

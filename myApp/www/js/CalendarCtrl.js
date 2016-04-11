@@ -210,10 +210,7 @@ $scope.formPopup = function() {
           // currentTimezone: 'America/New York' // an option!
   };
   /* event source that contains custom events on the scope */
-  $scope.events = [
-    {title:'hello',start:new Date()}
-
-  ];
+  $scope.events = [];
 
 
   /* event source that calls a function on every view switch */

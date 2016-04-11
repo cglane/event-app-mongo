@@ -21,6 +21,10 @@ module.exports = function(app,User,publicFolder,passport,jwt){
   	var nick = new User({
   		username: req.body.username,
   		password: req.body.password,
+      lastName: req.body.lastName,
+      firstName:req.body.firstName,
+      email: req.body.email,
+      events:[]
   	});
     User.find({
       username: req.body.username

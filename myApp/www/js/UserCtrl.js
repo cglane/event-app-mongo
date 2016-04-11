@@ -5,7 +5,6 @@ angular
   .module('starter')
   .controller('UserCtrl', function($ionicPopup,$scope,MainService,$window,$http) {
     /////////////////////GOOGLE API////////////////////////////
-      var googleContactsInfo = function(){
           var clientID = '11087199701161-5p2msmfiojl0bovne4fn0mi879lb3fbj.apps.googleusercontent.com';
            var apiKey = 'AIzaSyCze72Ua9-MWfqD_6wWLt29H0Cri1tKpos';
            var scopes = 'https://www.googleapis.com/auth/contacts.readonly';
@@ -21,35 +20,41 @@ angular
                $.get("https://www.google.com/m8/feeds/contacts/default/thin?alt=json&access_token=" + authorizationResult.access_token + "&max-results=500&v=3.0",
                  function(response){
                    //process the response here
-                   var editResponse = [];
+                   var responseArray = [];
 
                   response.feed.entry.forEach(function(el){
                     if(el.gd$name && el.gd$email){
                       var object = {
                         name : el.gd$name.gd$fullName.$t,
-                        email: el.gd$email[0].address
+                        email: el.gd$email[0].address,
+                        admin: 'false',
                       }
                     }
+                    if(object != undefined){
+                      responseArray.push(object)
+                    }
                   })
-                  return editResponse
+                  $scope.googleContactPop(responseArray)
                  });
              }
            }
-         }
+
          /////////////////////////////////////////////////
 
       var getUsers = function(){
         MainService.getEventUsers().success(function(users){
+          console.log(users,'users')
           $scope.eventUsers = users;
         })
       }
       getUsers()
 
       $scope.editUser = function(index){
-        var clickedUser = $scope.eventUsers[index]
+        var clickedUser = $scope.eventUsers[index];
+        console.log(clickedUser,'clickedUser')
         $scope.data = {
-          first:clickedUser.first,
-          last:clickedUser.last,
+          firstName:clickedUser.firstName,
+          lastName:clickedUser.lastName,
           phone:clickedUser.phone,
           email:clickedUser.email
         };
@@ -64,12 +69,12 @@ angular
               text: '<b>Save</b>',
               type: 'button-positive',
               onTap: function(e) {
-                if($scope.data.first){
+                if($scope.data.firstName){
                   var userObject = {
                     email: $scope.data.email,
                     phone:$scope.data.phone,
-                    firstName:$scope.data.first,
-                    lastName:$scope.data.last,
+                    firstName:$scope.data.firstName,
+                    lastName:$scope.data.lastName,
                   }
                   MainService.updateUser(userObject,clickedUser._id).success(function(el){
                     console.log(el,'response')
@@ -80,6 +85,14 @@ angular
                   alert('Almost There')
                 }
               }
+            },
+            {text:'<b>Delete</b>',
+            type:'button-positive',
+            onTap:function(e){
+              MainService.removeUser(clickedUser._id).success(function(el){
+                getUsers()
+              })
+            }
             }
           ]
         });
@@ -100,25 +113,26 @@ angular
                onTap: function(e) {
                  if(d.email && d.phone && d.text){
                    var inviteeObject = {
-                     username: d.email,
-                     phone:d.phone,
-                     email:d.email,
-                     lastName:d.last,
-                     firstName:d.first
+                        username: d.email,
+                        phone:d.phone,
+                        email:d.email,
+                        last:d.last,
+                        first:d.first
                    }
                    console.log(inviteeObject,'inviteeObject')
                    console.log(d.text,'d.text')
                    console.log(d.text === 'true','is true')
                    MainService.inviteToEvent(inviteeObject,d.admin).success(function(el){
-                     if(d.text === 'true'){
-                       if(el.success !== false){
+                     if(d.text === 'true' && el.success !== false){
                          console.log('send text')
                          MainService.sendTextInvite(inviteeObject);
-                       }
                      }
-                     console.log(el,'el')
+                      if(el.success != false){
+                        MainService.sendEmailInvite(inviteeObject);
+                        getUsers()
+                      }
+                      console.log(el,'success')
                    })
-                    //  getUsers()
                  }else{
                    e.preventDefault();
                    alert('Almost There')
@@ -129,14 +143,26 @@ angular
            ]
          });
         };
-        $scope.googleContacts = function(){
+        $scope.googleContactPop = function(response){
 
-          $scope.googleContactInfo = googleContactsInfo();
+          $scope.googleContactInfo = response;
+          var  contactIndexs = []
+          $scope.addIndex = function(bool,index){
+            if(bool){
+              $scope.myClass = 'blueHigh';
+              contactIndexs.push(index)
+            }else{
+              var index = contactIndexs.indexOf(index);
+              if (index > -1) {
+                contactIndexs.splice(index, 1);
+              }
+            }
+          }
           $scope.googleInviteData = {}
           var d = $scope.googleInviteData;
           // An elaborate, custom popup
           var myPopup = $ionicPopup.show({
-            templateUrl: 'templates/googleContacts.html',
+            templateUrl: 'templates/googlePop.html',
             title: 'Invite Google Contacts',
             scope: $scope,
             buttons: [
@@ -145,7 +171,30 @@ angular
                 text: '<b>Save</b>',
                 type: 'button-positive',
                 onTap: function(e) {
-                  console.log($scope.googleInviteData)
+                  var googleInvites = [];
+                  contactIndexs.forEach(function(el){
+                    googleInvites.push($scope.googleContactInfo[el])
+                  })
+                  console.log(googleInvites,'googleInvites')
+                  googleInvites.forEach(function(el){
+
+                          var inviteeObject = {
+                            username : el.email,
+                            email: el.email,
+                            last: el.name.split(' ')[1],
+                            first:el.name.split(' ')[0],
+                            phone: '',
+                          }
+                          console.log(inviteeObject,'invitee Object')
+                    MainService.inviteToEvent(inviteeObject,el.admin).success(function(el){
+                        if(el.success !== false){
+                          console.log('send email')
+                          MainService.sendEmailInvite(inviteeObject);
+                        }
+                      getUsers()
+                    })
+
+                  })
 
                 }
               }

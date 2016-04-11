@@ -10,6 +10,7 @@ angular.module('starter', [
   'ngCordova',
   'ionic-datepicker',
   'ui.calendar',
+  'ngFileUpload',
  'starter.services'])
 .config(function($httpProvider) {
   // $httpProvider.defaults.headers.common = {};

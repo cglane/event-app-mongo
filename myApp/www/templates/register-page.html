@@ -21,10 +21,13 @@
               <input type="password" placeholder="Password" ng-model="regData.password">
           </label>
           <label class="item item-input">
-              <input type="text" placeholder="First Name" ng-model="regData.first">
+              <input type="text" placeholder="First Name" ng-model="regData.firstName">
           </label>
           <label class="item item-input">
-              <input type="text" placeholder="Last Name" ng-model="regData.last">
+              <input type="text" placeholder="Last Name" ng-model="regData.lastName">
+          </label>
+          <label class="item item-input">
+              <input type="email" placeholder="john@aol.com" ng-model="regData.email">
           </label>
       </div>
       <button ng-class = "{turnRed:registerFail}"class="button button-block button-calm" ng-click="registerUser()">Register</button>

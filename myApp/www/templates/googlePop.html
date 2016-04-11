@@ -1,0 +1,15 @@
+<div ng-controller = "CalendarCtrl"class="list">
+  <span ng-model = 'googleContactInfo[0].email'></span>
+  <div ng-class = 'myClass'ng-click = 'var = !var; addIndex(var,$index)'ng-repeat = "contact in googleContactInfo | filter:{isRight:'!true'}"class="card">
+    <div ng-class = "{'blueHigh':var}"class="item">
+      <span>{{contact.name}}</span>
+      <br>
+      <span>{{contact.email}}</span>
+      <br>
+      <select ng-show = 'var'ng-model = "contact.admin"class="" name="">
+        <option value = 'true'>Admin</option>
+        <option value = 'false'>User</option>
+      </select>
+    </div>
+  </div>
+</div>

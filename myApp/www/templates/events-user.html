@@ -5,7 +5,6 @@
   <ion-content>
     <button ng-click = "inviteUser()"type="button" name="button">Invite Someone</button>
     <button ng-click = "getGoogleContacts()"type="button" name="button">Get Google Contacts</button>
-    {{eventUsers[0].username}}
     <div class="card" ng-repeat="user in eventUsers">
       <div class="item item-divider">
           {{user.lastName || user.username}} {{user.firstName}}

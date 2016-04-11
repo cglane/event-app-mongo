@@ -9,8 +9,12 @@ module.exports = {
 			},
 	'googleAuth' : {
 
-         'clientID'      : '1087199701161-583gupdifutsk5bbhokr3beivatk72m6.apps.googleusercontent.com',
+         'clientID'      : '1087199701161-kq37sa9c095g7grlbh66v5m4qn8g7hso.apps.googleusercontent.com',
          'clientSecret'  : '-i_dYSamo4Rde6zRGLARQbpr',
          'callbackURL'   : 'http://localhost:3000/auth/google/callback'
-    }
+    },
+		'emailAuth':{
+				'user': 'nodemail12@gmail.com',
+				'password': 'nodemailer'
+		}
 };

@@ -1,26 +1,31 @@
 
+
 var nodemailer = require('nodemailer');
-
-module.exports = function(recipient,subject,textContent){
-
-
-  // create reusable transporter object using the default SMTP transport
-  var transporter = nodemailer.createTransport('smtps://nodemail12%40gmail.com:mywebapp@smtp.gmail.com');
-  console.log(recipient,'recipient')
-  // setup e-mail data with unicode symbols
-  var mailOptions = {
-      from: '"Sarah 👥" <foo@blurdybloop.com>',
+var config = require('../config.js')
+module.exports = function(recipient,subject,content){
+      // Not the movie transporter!
+      console.log(recipient,subject,content)
+      var transporter = nodemailer.createTransport({
+          service: 'Gmail',
+          auth: {
+              user: config.emailAuth.user, // Your email id
+              pass: config.emailAuth.password // Your password
+          }
+      });
+      var mailOptions = {
+      from: '"Event App 👥" <foo@blurdybloop.com>', // sender address
       to: recipient, // list of receivers
       subject: subject, // Subject line
-      text: textContent, // plaintext body
-      html: '<b>'+textContent+'</b>' // html body
+      text: content //, // plaintext body
+      // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
   };
-
-  // send mail with defined transport object
   transporter.sendMail(mailOptions, function(error, info){
-      if(error){
-          return console.log(error);
-      }
-      console.log('Message sent: ' + info.response);
+    if(error){
+        return error
+    }else{
+        return info.response
+    };
   });
+
+
 }

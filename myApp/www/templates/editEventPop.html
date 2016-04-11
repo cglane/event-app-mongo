@@ -1,0 +1,22 @@
+<div ng-controller = "CalendarCtrl"class="list">
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Image</span>
+    <label class="item item-input item-stacked-label">
+      <input ng-model = "eventData.img"type="file" name="pic" accept="image/*">
+    </label>
+    <span class="input-label">Title</span>
+    <input ng-model = "eventData.eventTitle"type="text" placeholder="group meeting">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">City</span>
+    <input ng-click = ""ng-model = "eventData.city"type="text" placeholder="Charleston"name="name" value="">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">State</span>
+    <input ng-click = ""ng-model = "eventData.state"type="text" placeholder="SC"name="name" value="">
+  </label>
+  <label class="item item-input item-stacked-label">
+    <span class="input-label">Zip</span>
+    <input ng-click = ""ng-model = "eventData.zip"type="text" placeholder="Zip"name="name" value="">
+  </label>
+</div>

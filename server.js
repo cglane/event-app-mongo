@@ -8,6 +8,8 @@ var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
 var passport = require('passport')
+var mailer = require('express-mailer');
+var multer  = require('multer')
 
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var config = require('./config'); // get our config file
@@ -29,16 +31,6 @@ app.use(bodyParser.json());
 // use morgan to log requests to the console
 app.use(morgan('dev'));
 //config response for server
-
-//all CORS,neccesary for ionic app
-// app.use(function(req, res, next) {
-//   res.append('Access-Control-Allow-Origin',req.headers.origin || '*');
-//   res.append('Access-Control-Allow-Credentials','true');
-//   res.append('Access-Control-Allow-Methods',['GET', 'OPTIONS','PUT','POST']);
-//   res.append('Access-Control-Allow-Headers',
-//       'Origin, X-Requested-With, Content-Type, Accept');
-//   next();
-// });
 
 app.use(methodOverride());
 
@@ -62,7 +54,8 @@ app.use(allowCrossDomain);
 //routes that do not require tokens
 require('./app/serialize.js')(User,app,jwt)
 require('./app/noauthRoutes.js')(app,User,publicFolder,passport,jwt);
-require('./app/gContacts.js')();
+
+
 // ---------------------------------------------------------
 // get an instance of the router for api routes
 // ---------------------------------------------------------
@@ -71,7 +64,10 @@ var apiRoutes = express.Router();
 //authenticate with token
 require("./app/authenticate.js")(apiRoutes,jwt,app)
 //routes that require token authentication
-require('./app/routes.js')(apiRoutes,jwt,app)
+require('./app/routes.js')(apiRoutes,jwt,app,mailer)
+//upload file config and route
+require('./app/uploadFile.js')(app,multer)
+
 //adding prefix of api to all fo these routes
 app.use('/api', apiRoutes);
 // ===============================================

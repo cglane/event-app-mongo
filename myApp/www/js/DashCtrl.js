@@ -12,8 +12,10 @@ angular
         console.log(userEvents,'userEvents')
         $scope.userEvents = userEvents;
       })
-      $scope.setEventId = function(id){
+      $scope.setEventId = function(id,title){
+        console.log(id,title)
         localStorage.setItem('eventId',id);
+        localStorage.setItem('eventTitle',title)
       }
       $scope.createEvent = function() {
         $scope.data = {};
@@ -37,7 +39,11 @@ angular
                   };
                   MainService.createEvent(dataObject).success(function(el){
                     localStorage.setItem('eventId',el._id);
+                    localStorage.setItem('eventTitle',el.eventTitle)
+                    console.log(el,'el')
+                    if(el.success != false){
                     $location.path('#/events/dash')
+                  }
                   })
                   //create Event
                 }else{

@@ -5,6 +5,7 @@ angular
   .module('starter')
   .controller('EventsCtrl', function($location,$scope, $state,$stateParams, MainService,$ionicSideMenuDelegate) {
     var eventId = localStorage.getItem('eventId');
+    $scope.eventTitle = localStorage.getItem('eventTitle')
     $scope.toggleLeft = function() {
       $ionicSideMenuDelegate.toggleLeft();
     };
@@ -22,7 +23,7 @@ angular
       {title:'calendar',checked:false,icon:'calendar'},
       {title:'messages',checked:false,icon:'chatboxes'},
       {title:'users',checked:false,icon:'person'},
-      {title:'acccount',checked:false,icon:'gear'},
+      {title:'account',checked:false,icon:'gear'},
       {title:'eventDates',checked:false,icon:'list'},
 
     ]
