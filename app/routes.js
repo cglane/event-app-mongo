@@ -7,7 +7,20 @@ var timer = require('./timers.js');
 var mongoose = require('mongoose');
 var Promise = require('es6-promise').Promise;
 
-
+//add email or text message to event array in user ObjectId
+var addToMessages = function(eventId,message){
+  Events.findOne({_id:eventId}).exec(function(err,event){
+    if(err)throw err;
+    event.messages.push({
+      body:message,
+      time: new Date()
+    })
+    event.save(function(err,result){
+      if(err)throw err;
+      console.log(result,'result')
+    })
+  })
+}
 // var NodeMail = require('./nodemailer.js');
 // var Twilio = require('./sms.js')
 var addEventToUser = function(eventId,userId,eventTitle,admin){
@@ -120,6 +133,7 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
         user.phone = req.body.phone;
         user.lastName = req.body.lastName;
         user.firstName = req.body.firstName;
+        user.avatar = req.body.avatar;
         user.save(function(err,user){
           if(err)throw err;
           res.json({
@@ -135,10 +149,12 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
     User.findOne({_id:id},function(err,user){
       if(err) throw err;
       else{
+        user.username = req.body.username;
         user.email = req.body.email;
         user.phone = req.body.phone;
         user.lastName = req.body.lastName;
         user.firstName = req.body.firstName;
+        user.avatar = req.body.avatar;
         console.log(user,'user')
         user.save(function(err,user){
           if(err) throw err;
@@ -148,6 +164,23 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
           })
         })
       }
+    })
+  })
+  apiRoutes.put('/changepassword/:user_id',function(req,res){
+    User.findOne({_id:req.params.user_id},function(err,user){
+      if(err)throw err;
+      else{
+        console.log(req.body,'req.body')
+        console.log(user,'user')
+      user.password = req.body.password;
+      user.save(function(err,nUser){
+        if(err)throw err;
+        res.send({
+          success:true,
+          user:nUser
+        })
+      })
+    }
     })
   })
   apiRoutes.post('/createevent/:user_id',function(req,res){
@@ -160,7 +193,8 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
         city:req.body.city,
         state:req.body.state,
         zip:req.body.zip
-      }
+      },
+      messages:[]
     });
     //check if name of event already exists for user
       User.findOne({_id:userId},{events:{$elemMatch:{eventTitle:req.body.eventTitle}}},function(err,user){
@@ -257,6 +291,7 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
     var eventTitle = req.params.eventTitle
     var bool = req.params.bool;
     var text = req.params.text;
+    console.log(req.body,'req.body')
     var nick = new User({
       username: req.body.email,
       password: 'newPassword',
@@ -319,26 +354,39 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
   //edit event
   apiRoutes.put('/editevent/:eventId',function(req,res){
     var eventId = req.params.eventId;
-    var eventTitle = req.body.eventTitle;
-    var date= req.body.date;
-    var city = req.body.city;
-    var state = req.body.state;
-    var zip = req.body.zip;
-    Events.findByIdAndUpdate(
-      eventId,
-      {update: { $set:
-        { 'eventTitle':eventTitle,
-        'date':date,
-        'location.$.city':city,
-        'location.$.state':state,
-        'location.$.zip':zip
-      }
-    }
-  },function(err,thisEvent){
+     var eventTitle = req.body.eventTitle;
+     var date= req.body.date;
+     var city = req.body.location.city;
+     var state = req.body.location.state;
+     var zip = req.body.location.zip;
+     var avatar = req.body.avatar;
+     console.log(city,'city')
+     Events.findOneAndUpdate({
+       _id: eventId
+     },{$set:{
+       'eventTitle':eventTitle,
+      'date':date,
+      'location.city':city,
+      'location.state':state,
+      'location.zip':zip,
+      'avatar': avatar
+           }
+     },{
+       new:true
+     },function(err,thisEvent){
+       if(err)throw err;
+       res.send(thisEvent)
+     })
+
+  })
+  apiRoutes.get('/geteventmessages/:eventId',function(req,res){
+    var eventId = req.params.eventId;
+    Events.findOne({_id:eventId},function(err,event){
       if(err)throw err;
-      res.send(thisEvent)
+      res.send(event.messages)
     })
   })
+
   apiRoutes.post('/createeventdate/:eventId',function(req,res){
     var eventId = req.params.eventId;
     var data = req.body;
@@ -358,6 +406,7 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
     localDoc.save(function(err,object){
       if(err)throw err;
       else{
+        console.log(object,'object')
         timer.setSchedule(object,eventId);
         Events.findByIdAndUpdate(eventId,{
           $push:{eventDates:object._id},
@@ -414,18 +463,16 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
     })
   })
   apiRoutes.delete('/deleteeventdate/:eventDateId/:eventId',function(req,res){
-    var eventDateId = req.params.eventdateId;
+    var eventDateId = req.params.eventDateId;
     var eventId = req.params.eventId;
-    EventDate.findByIdAndRemove(eventDateId,function(err){
-      if(err) throw err;
+    console.log(eventDateId,'eventDateId')
+    Events.findOneAndUpdate({_id:eventId},
+    {$pull:{'eventDates':{_id:eventDateId}}},function(err,upEvent){
+      if(err)throw err;
       else{
-        Events.findByIdAndUpdate(eventId,{
-          update:{
-            $pull:{'eventDates':eventId}
-          }
-        },function(err,body){
+        EventDate.findByIdAndRemove(eventDateId,function(err,response){
           if(err)throw err;
-          res.send(body);
+          res.send({succcess:'true',respon:response})
         })
       }
     })
@@ -437,6 +484,9 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
     var recipients;
     //find all attendee id's
     Events.findOne({_id:eventId},function(err,body){
+      //add email to messages array
+      addToMessages(eventId,emailBody);
+      //add up users and admins
       recipients = body.admins.concat(body.users);
       //search for user emails
       User.find({_id:{$in:recipients}},function(err,allUsers){
@@ -458,6 +508,8 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
     //find all attendee id's
     Events.findOne({_id:eventId},function(err,body){
       recipients = body.admins.concat(body.users);
+      //add this message to message array
+      addToMessages(eventId,textBody);
       //search for user phone number
       User.find({_id:{$in:recipients}},function(err,allUsers){
         if(err)throw err;
@@ -488,6 +540,6 @@ module.exports = function (apiRoutes,jwt,app,mailer,upload) {
     var textContent = 'Sign in a http://localhost:3030/register . Sign in with username: '+username+' and password: '+ password;
     require('./nodemailer.js')(email,subject,textContent)
   })
-  
+
 
 }

@@ -1,23 +1,56 @@
-<ion-view view-title="Account">
+<ion-view title = '{{message}}'name = "UserAccount">
   <ion-content>
-    <ion-list>
-    <ion-toggle  ng-model="settings.enableFriends">
-        Enable Friends
-    </ion-toggle>
-    </ion-list>
-  </ion-content>
-</ion-view>
-<div class="list">
-  <label class="item item-input item-stacked-label">
-    <span class="input-label">Title</span>
-    <input type="text" placeholder="group meeting">
-  </label>
-  <label class="item item-input item-stacked-label">
-    <span class="input-label">Start Date</span>
-    <input type="text" placeholder="Suhr">
-  </label>
-  <label class="item item-input item-stacked-label">
-    <span class="input-label">Email</span>
-    <input type="text" placeholder="john@suhr.com">
-  </label>
+    <div class="list card">
+      <form  ng-controller="DashAccountCtrl as up" name="up.upload_form">
+                    Single Image with validations
+                <input
+                   type="file"
+                   ngf-select
+                   ng-model="up.file"
+                   name="file"
+                   ngf-pattern="'image/*'"
+                   accept="image/*"
+                   ngf-max-size="20MB"
+                   />
+                Image thumbnail: <img style="width:100px;" ng-src="./pics/{{userAccount.avatar}}"onerror="this.src='http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?d=identicon'">
+                <i ng-show="up.upload_form.file.$error.required">*required</i><br>
+                <i ng-show="up.upload_form.file.$error.maxSize">File too large
+                {{up.file.size / 1000000|number:1}}MB: max 20M</i>
+                <button type="submit" ng-click="up.submit()">submit</button>
+                <p>{{up.progress}}</p>
+            </form>
+
+            <label class="item item-input item-stacked-label">
+              <span class="input-label"> New Password:</span>
+              <input ng-model = "confirmPassword"type="password" value="">
+            </label>
+            <label ng-class = "{'turnRed':pVar}"class="item item-input item-stacked-label">
+              <span class="input-label"> Confirm Password:</span>
+              <input ng-model = "newPassword"type="password" value="">
+            </label>
+            <button ng-click = 'changePassword(newPassword,confirmPassword)'type="button button-calm" name="button">Change Password</button>
+
+            <label>
+              <span class="input-label">Username:</span>
+              <input ng-class = "{'turnRed':uVar}"ng-model = "userAccount.username"type="text" placeholder="username">
+            </label>
+            <label class="item item-input item-stacked-label">
+              <span class="input-label"> Email:</span>
+              <input ng-model = "userAccount.email"type="email" placeholder="email@email.com"value="">
+            </label>
+            <label class="item item-input item-stacked-label">
+              <span class="input-label"> Last Name:</span>
+              <input ng-model = "userAccount.lastName"type="text" placeholder="Smith"value="">
+            </label>
+            <label class="item item-input item-stacked-label">
+              <span class="input-label"> First Name:</span>
+              <input ng-model = "userAccount.firstName"type="text" placeholder="John"value="">
+            </label>
+            <label class="item item-input item-stacked-label">
+              <span class="input-label"> Phone:</span>
+              <input ng-model = "userAccount.phone"type="tel" placeholder="+18435555555"value="">
+            </label>
+            <button ng-click = 'editUser()'type="button button-calm" name="button">Update Account</button>
 </div>
+    </ion-content>
+</ion-view>

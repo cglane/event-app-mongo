@@ -4,13 +4,7 @@
       <ion-item class = 'text-center'>
       <button ng-click= 'createEvent()'type="button" name="button">Create New Event</button>
       <ion-item>
-      <ion-item class="item-remove-animate item-avatar item-icon-right text-center" type="item-text-wrap" href="#/events/dash/{{event._id}}">
-        <!-- <h2 ng-click = 'createEvent()' id = "create-new-event">Create New Event</h2> -->
-        <i class="icon ion-chevron-right icon-accessory"></i>
-        <ion-option-button class="button-assertive" ng-click="remove(chat)">
-          Delete
-        </ion-option-button>
-      </ion-item>
+
       <ion-item ng-click = "setEventId(event._id,event.eventTitle)"class="item-remove-animate item-avatar item-icon-right text-center" ng-repeat="event in userEvents" type="item-text-wrap" href="#/events/dash/{{event._id}}">
         <h2>{{event.eventTitle}}</h2>
         <p>

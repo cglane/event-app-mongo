@@ -24,10 +24,11 @@ angular
       })
     })
   }
-  getEventDates()
+  getEventDates();
+
     var refreshEvents = function(){
+      console.log('refreshEvents')
       MainService.getEventDates().success(function(eventDates){
-        console.log(eventDates)
         var newEvents = [];
         $scope.events.splice(0,$scope.events.length);
         eventDates.forEach(function(el){
@@ -67,9 +68,8 @@ angular
     }
   }
   var editEventDate = function(object,id){
-    console.log(object.textMsg.bool,'object')
+    console.log(object,'editEventDate')
     MainService.editEventDate(object,id).success(function(el){
-      console.log(el.textMsg.bool,'element')
       refreshEvents();
     })
   }
@@ -107,8 +107,14 @@ angular
 
 //form popup plugin code
 $scope.formPopup = function() {
-  $scope.data = {};
-
+  $scope.data = {
+    email:{
+      bool:true,
+    },
+    textMsg:{
+      bool:true
+    }
+  };
   // An elaborate, custom popup
   var myPopup = $ionicPopup.show({
     templateUrl: 'templates/popupForm.html',
@@ -134,6 +140,7 @@ $scope.formPopup = function() {
                 time:$scope.data.textMsg.time
               }
             };
+
             createEventDate(dataObject);
           }else{
             e.preventDefault();
@@ -145,8 +152,7 @@ $scope.formPopup = function() {
   });
  };
  $scope.editEventPopup = function(data) {
-   console.log(data.email.bool,'email.bool')
-   console.log((data.email.bool === 'true')? true : false, 'turnary operator')
+   console.log(data,'dataeventPopup')
    $scope.editData = {
      title:data.title,
      start:data.start._d,
@@ -160,7 +166,6 @@ $scope.formPopup = function() {
        time:parseInt(data.textMsg.time)
      }
    };
-
    // An elaborate, custom popup
    var myPopup = $ionicPopup.show({
      templateUrl: 'templates/edit-popup.html',
@@ -168,11 +173,22 @@ $scope.formPopup = function() {
      scope: $scope,
      buttons: [
        { text: 'Cancel' },
+       {text:'Delete',
+       type:'button-positive',
+       onTap:function(e){
+         console.log('delete',data)
+         MainService.deleteEventDate(data._id).success(function(el){
+           console.log(el,'el')
+           refreshEvents();
+         })
+       }
+
+     },
        {
          text: '<b>Save</b>',
          type: 'button-positive',
          onTap: function(e) {
-           if($scope.editData.startTime && $scope.editData.endTime && (endLaterThanStart($scope.editData.start,$scope.editData.end))&& $scope.editData.title){
+           if($scope.editData.startTime && $scope.editData.endTime && (endLaterThanStart($scope.editData.startTime,$scope.editData.endTime))&& $scope.editData.title){
              var editDataObject = {
                title:$scope.editData.title,
                start:addDaysHours($scope.editData.start,$scope.editData.startTime),
@@ -238,36 +254,16 @@ $scope.formPopup = function() {
   };
   /* alert on Drop */
    $scope.alertOnDrop = function(event, delta, revertFunc, jsEvent, ui, view){
-    //  console.log(event,'event')
-     console.log(delta,'delta')
      var d = delta._days;
-     var start,end;
-     //native function does not add or subtract exactly 24 hours from object per day delta
-     $scope.events.forEach(function(el){
-       if(el._id === event._id){
-         if(d >= 0){
-            start = moment(el.start).add(d,'days');
-            end = moment(el.end).add(d,'days')
-         }else{
-           start = moment(el.start).subtract((d*-1),'days');
-           end = moment(el.end).subtract((d*-1),'days')
-         }
-       }
-     })
-     var currObject = {
-       title:event.title,
-       start:start,
-       end:end,
-       email:{
-         bool:event.email.bool,
-         time:event.email.time
-       },
-       textMsg:{
-         bool:event.textMsg.bool,
-         time:event.textMsg.time
-       }
+     var dateObject = _.findWhere($scope.events,{_id:event._id});
+     if(d >= 0){
+       dateObject.start = moment(dateObject.start).add(d,'days').toDate();
+       dateObject.end = moment(dateObject.end).add(d,'days').toDate();
+     }else{
+       dateObject.start = moment(dateObject.start).subtract(-1*d,'days').toDate();
+       dateObject.end = moment(dateObject.end).subtract(-1*d,'days').toDate();
      }
-     editEventDate(currObject,event._id);
+     editEventDate(dateObject,event._id);
   };
   /* alert on Resize */
   $scope.alertOnResize = function(event, delta, revertFunc, jsEvent, ui, view ){

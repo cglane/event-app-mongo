@@ -5,12 +5,22 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
+var underscore = angular.module('underscore',[]);
+  underscore.factory('_',function(){
+    return window._;
+  });
+  var jquery = angular.module('jquery',[]);
+    jquery.factory('$',function(){
+      return window._;
+    });
 angular.module('starter', [
   'ionic',
   'ngCordova',
   'ionic-datepicker',
   'ui.calendar',
   'ngFileUpload',
+  'underscore',
+  'jquery',
  'starter.services'])
 .config(function($httpProvider) {
   // $httpProvider.defaults.headers.common = {};
@@ -67,6 +77,7 @@ angular.module('starter', [
 //events state and substate
   .state('events',{
     url:'/events',
+    cache:false,
     abstract:true,
     templateUrl:'templates/events.html',
     controller:'EventsCtrl'
@@ -130,7 +141,9 @@ angular.module('starter', [
     .state('tab', {
     url: '/tab',
     abstract: true,
-    templateUrl: 'templates/tabs.html'
+    cache: false,
+    templateUrl: 'templates/tabs.html',
+    controller:'DashCtrl'
   })
   // Each tab has its own nav history stack:
 
@@ -144,12 +157,12 @@ angular.module('starter', [
     }
   })
 
-  .state('tab.chats', {
-      url: '/chats',
+  .state('tab.messages', {
+      url: '/messages',
       views: {
-        'tab-chats': {
-          templateUrl: 'templates/tab-chats.html',
-          controller: 'ChatsCtrl'
+        'tab-messages': {
+          templateUrl: 'templates/tab-messages.html',
+          controller: 'DashCtrl'
         }
       }
     })
@@ -168,7 +181,7 @@ angular.module('starter', [
     views: {
       'tab-account': {
         templateUrl: 'templates/tab-account.html',
-        controller: 'AccountCtrl'
+        controller: 'DashAccountCtrl'
       }
     }
   });

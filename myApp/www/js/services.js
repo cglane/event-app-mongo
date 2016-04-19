@@ -30,10 +30,22 @@
     }
     var updateUser = function(user,userId){
       return $http({
-            url: '/api/updateuser/'+userId,
+            url: '/api/updateuser/'+localStorage.getItem('currId'),
             dataType: 'json',
             method: 'PUT',
             data: user,
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
+    var changeUserPassword = function(password){
+      return $http({
+            url: '/api/changepassword/'+localStorage.getItem('currId'),
+            dataType: 'json',
+            method: 'PUT',
+            data: password,
             headers: {
               "Content-Type": "application/json",
               "x-access-token":token
@@ -149,6 +161,18 @@
             }
           });
     }
+    var deleteEventDate = function(id){
+      return $http({
+            url: '/api/deleteeventdate/'+id+'/'+localStorage.getItem('eventId'),
+            dataType: 'json',
+            method: 'DELETE',
+            data: '',
+            headers: {
+              "Content-Type": "application/json",
+              "x-access-token":token
+            }
+          });
+    }
     var getUsers = function(){
       return $http({
             url: '/api/users',
@@ -235,21 +259,23 @@
               }
             });
       }
-
-      var uploadPhoto = function(file){
+      var editEvent = function(eventObject){
         return $http({
-              url: '/api/uploadphoto/',
-              method: 'POST',
-              data: file,
+              url: '/api/editevent/'+localStorage.getItem('eventId'),
+              dataType: 'json',
+              method: 'PUT',
+              data:eventObject,
               headers: {
-                "Content-Type": undefined,
+                "Content-Type": "application/json",
                 "x-access-token":token
               }
             });
       }
 
     return{
-      uploadPhoto:uploadPhoto,
+      deleteEventDate:deleteEventDate,
+      changeUserPassword:changeUserPassword,
+      editEvent:editEvent,
       getEventInfo:getEventInfo,
       removeUser:removeUser,
       sendText:sendText,

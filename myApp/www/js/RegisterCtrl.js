@@ -57,7 +57,7 @@ angular
           if(user.token){
             localStorage.setItem('token',user.token);
             localStorage.setItem('currId',user._id);
-            $state.go('tab.dash');
+            $location.path('/tab/dash');
             console.log(user,'user');
           }
         })

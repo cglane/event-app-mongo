@@ -27,7 +27,8 @@ var UserSchema = new Schema({
     lastName:{type:String,default:''},
 		email:{type:String,default:''},
     phone:{type:String,default:''},
-    events:[subEventSchema]
+    events:[subEventSchema],
+    avatar:{type:String}
 });
 
 UserSchema.pre('save', function(next) {

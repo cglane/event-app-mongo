@@ -3,7 +3,7 @@
 
 angular
   .module('starter')
-  .controller('AccountCtrl', function($ionicPopup,$scope,MainService, Upload,$window) {
+  .controller('DashAccountCtrl', function($scope,$location,Upload,MainService,$window,$http,$ionicPopup) {
 
 
     var vm = this;
@@ -24,8 +24,8 @@ angular
                   //  $window.alert('Success ' + resp.config.data.file.name + 'uploaded. Response: ');
                    //save picture into event object
                    console.log(resp.data.filename,'filename')
-                   $scope.currEvent.avatar = resp.data.filename;
-                   MainService.editEvent($scope.currEvent).success(function(el){
+                   $scope.userAccount.avatar = resp.data.filename;
+                   MainService.updateUser($scope.userAccount).success(function(el){
                      console.log(el,'el')
                    })
                } else {
@@ -41,19 +41,37 @@ angular
                vm.progress = 'progress: ' + progressPercentage + '% '; // capture upload progress
            });
        };
-       MainService.getEventInfo().success(function(el){
-            $scope.currEvent = el;
-            console.log(el,'el');
-            // ($scope.currEvent.avatar)? vm.avatar = $scope.currEvent.avatar: '';
-       })
-       $scope.submitEvent = function(){
-         console.log('submitEvent')
-         console.log($scope.currEvent)
-         MainService.editEvent($scope.currEvent).success(function(el){
-           localStorage.setItem('eventTitle',el.eventTitle)
-           console.log(el.location)
-         })
-       }
+    MainService.getUserInfo().success(function(el){
+      $scope.userAccount = el;
+      console.log(el,'userAccount')
+    })
+    $scope.changePassword = function(newPass,confirmPass){
+      if(newPass === confirmPass){
+        //changePassword
+        MainService.changeUserPassword({password:newPass}).success(function(el){
+          if(el.success = true){
+            $scope.message = 'password changed';
+            console.log('password changes')
+            $scope.newPassword = '';
+            $scope.confirmPassword = '';
+          }
+        })
+      }else{
+        //turn input red
+        $scope.pVar = true;
+      }
+    }
+    $scope.editUser = function(){
+      if(!$scope.userAccount.username.length){
+        $scope.uVar = true;
+      }else{
+        MainService.updateUser($scope.userAccount).success(function(el){
+          $scope.userAccount = el.user;
+          console.log(el)
+        })
+      }
+    }
 
-  });
+
+  })
 })();

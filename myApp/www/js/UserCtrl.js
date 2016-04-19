@@ -56,8 +56,11 @@ angular
           firstName:clickedUser.firstName,
           lastName:clickedUser.lastName,
           phone:clickedUser.phone,
-          email:clickedUser.email
+          email:clickedUser.email,
+          username:clickedUser.username,
+          avatar:clickedUser.avatar,
         };
+        console.log($scope.data)
         // An elaborate, custom popup
         var myPopup = $ionicPopup.show({
           templateUrl: 'templates/editUserPop.html',
@@ -70,13 +73,7 @@ angular
               type: 'button-positive',
               onTap: function(e) {
                 if($scope.data.firstName){
-                  var userObject = {
-                    email: $scope.data.email,
-                    phone:$scope.data.phone,
-                    firstName:$scope.data.firstName,
-                    lastName:$scope.data.lastName,
-                  }
-                  MainService.updateUser(userObject,clickedUser._id).success(function(el){
+                  MainService.updateUser($scope.data,clickedUser._id).success(function(el){
                     console.log(el,'response')
                     getUsers()
                   })

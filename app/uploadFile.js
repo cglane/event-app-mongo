@@ -2,7 +2,7 @@
 function uploadImages(app,multer) {
   var storage = multer.diskStorage({ //multers disk storage settings
           destination: function (req, file, cb) {
-              cb(null, './app/uploads/')
+              cb(null, '/Users/cglane/Desktop/Iron_Yard/wedding-app/myApp/www/pics')
           },
           filename: function (req, file, cb) {
               var datetimestamp = Date.now();
@@ -21,7 +21,7 @@ function uploadImages(app,multer) {
                    res.json({error_code:1,err_desc:err});
                    return;
               }
-               res.json({error_code:0,err_desc:null});
+               res.json({error_code:0,err_desc:null,filename:req.file.filename});
           })
 
       });
